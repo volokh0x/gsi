@@ -7,9 +7,15 @@ using System.Linq;
 
 namespace gsi
 {
+    enum ObjectType{
+        blob,
+        tree,
+        commit,
+        tag
+    }
+    
     class X
     {
-        private static string repo {get => Environment.CurrentDirectory;}
         private static char _s = Path.DirectorySeparatorChar;
         public static void Init(string repo) 
         {
@@ -20,7 +26,7 @@ namespace gsi
                 $"ref: refs{_s}heads{_s}master");
             Console.WriteLine($"initialized empty repository: {repo}");
         }
-        public static string HashObject(byte[] data, string obj_type, bool write=true)
+        public static string HashObject(byte[] data, ObjectType obj_type, bool write=true)
         {
             byte[] header = Encoding.UTF8.GetBytes($"{obj_type} {data.Length}");
             byte[] full_data = new byte[header.Length+1+data.Length];
@@ -35,7 +41,7 @@ namespace gsi
 
             if (write)
             {
-                string path = Path.Combine(repo, ".git", "objects", hash_str.Substring(0,2), hash_str.Substring(2));
+                string path = Path.Combine(".git", "objects", hash_str.Substring(0,2), hash_str.Substring(2));
                 if (!File.Exists(path))
                 {
                     Directory.CreateDirectory(Path.GetDirectoryName(path));
@@ -50,14 +56,14 @@ namespace gsi
         {
             if (sha1_prefix.Length < 2) 
                 throw new ArgumentException();
-            string obj_dir = Path.Combine(repo, ".git", "objects", sha1_prefix.Substring(0,2));
+            string obj_dir = Path.Combine(".git", "objects", sha1_prefix.Substring(0,2));
             string rest = sha1_prefix.Substring(2);
             string[] objects = Directory.GetFiles(obj_dir, $"{rest}*");
             if (objects.Length>2) 
                 throw new Exception();
-            return Path.Combine(obj_dir, objects[0]);
+            return objects[0];
         }
-        public static (string, byte[]) ReadObject(string sha1_prefix)
+        public static (ObjectType, byte[]) ReadObject(string sha1_prefix)  
         {
             string path = FindObject(sha1_prefix);
             byte[] full_data; int fd_len;
@@ -72,10 +78,11 @@ namespace gsi
             Buffer.BlockCopy(full_data, 0, header, 0, i);
 
             string[] mas = Encoding.UTF8.GetString(header).Split(' ');
-            string obj_type_str=mas[0]; int size = Convert.ToInt32(mas[1]);
+            ObjectType obj_type=(ObjectType)Enum.Parse(typeof(ObjectType), mas[0]); int size = Convert.ToInt32(mas[1]);
             byte[] data = new byte[fd_len-i-1];
             Buffer.BlockCopy(full_data, i+1, data, 0, data.Length);
-            return (obj_type_str, data);
+            return (obj_type, data); 
         }
+        
     }
 }

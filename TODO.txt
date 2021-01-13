@@ -1,4 +1,14 @@
 
+
+
+
+
+
+
+
+check Debug instead of Release
+architecture!!!
+
 basic commands:
     init 
         reinitializing a repository ?
