@@ -9,7 +9,7 @@ namespace gsi
 {
     class X
     {
-        private static string repo {get => Directory.GetCurrentDirectory();}
+        private static string repo {get => Environment.CurrentDirectory;}
         private static char _s = Path.DirectorySeparatorChar;
         public static void Init(string repo) 
         {
@@ -41,10 +41,41 @@ namespace gsi
                     Directory.CreateDirectory(Path.GetDirectoryName(path));
                     using (FileStream dest_stream = new FileStream(path, FileMode.Create))
                         using (DeflateStream deflate_stream = new DeflateStream(dest_stream, CompressionMode.Compress))
-                            deflate_stream.Write(full_data, 0, full_data.Length);
+                            deflate_stream.Write(full_data, 0, full_data.Length);          
                 }
             }
             return hash_str;
+        }
+        public static string FindObject(string sha1_prefix)
+        {
+            if (sha1_prefix.Length < 2) 
+                throw new ArgumentException();
+            string obj_dir = Path.Combine(repo, ".git", "objects", sha1_prefix.Substring(0,2));
+            string rest = sha1_prefix.Substring(2);
+            string[] objects = Directory.GetFiles(obj_dir, $"{rest}*");
+            if (objects.Length>2) 
+                throw new Exception();
+            return Path.Combine(obj_dir, objects[0]);
+        }
+        public static (string, byte[]) ReadObject(string sha1_prefix)
+        {
+            string path = FindObject(sha1_prefix);
+            byte[] full_data; int fd_len;
+            using (FileStream source_stream = new FileStream(path, FileMode.Open))
+            {
+                full_data=new byte[source_stream.Length];
+                using (DeflateStream deflate_stream = new DeflateStream(source_stream, CompressionMode.Decompress))
+                    fd_len = deflate_stream.Read(full_data, 0, full_data.Length);                   
+            }   
+            int i = Array.IndexOf(full_data, (byte)0);
+            byte[] header = new byte[i];
+            Buffer.BlockCopy(full_data, 0, header, 0, i);
+
+            string[] mas = Encoding.UTF8.GetString(header).Split(' ');
+            string obj_type_str=mas[0]; int size = Convert.ToInt32(mas[1]);
+            byte[] data = new byte[fd_len-i-1];
+            Buffer.BlockCopy(full_data, i+1, data, 0, data.Length);
+            return (obj_type_str, data);
         }
     }
 }
