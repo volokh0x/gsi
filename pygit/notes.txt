@@ -1,0 +1,77 @@
+.git
+|--HEAD 
+|--refs
+|  |--heads
+|  |  |--master
+|--index
+|--objects(blob, tree, commit)
+|  |--ab
+|  |  |--cd..ca
+
+HEAD
+ref: refs/heads/master 
+(master file stores SHA-1 of commit)
+
+index
+12B header
+entries(IndexEntry ):  (sorted by path)
+--62B
+--pathNULLNULL.. (add as many NULL? so len % 8 == 0)
+...
+20B SHA-1 hash value
+( IndexEntry: 'ctime_s', 'ctime_n', 'mtime_s', 'mtime_n', 'dev', 'ino', 'mode',
+'uid', 'gid', 'size', 'sha1', 'flags', 'path' )
+
+cd..ca
+type sizeNULLdata 
+(zlib compressed)
+
+tree 
+entries:
+--mode pathNULLbSHA1
+...
+(fill this info from index)
+
+commit 
+tree SHA1 (tree)
+parent SHA1 (commit)
+author Ben Hoyt <benhoyt@gmail.com> 1493170892 -0500
+committer Ben Hoyt <benhoyt@gmail.com> 1493170892 -0500
+
+message
+
+===================================================
+pkt-line format
+lines:
+--4B hex length (length+line+\n)
+--line\n (with length specified above)
+--0000_0000f
+... (other lines)
+
+GitHub communication
+GET {git_url}/info/refs?service=git-receive-pack
+--# service=git-receive-pack
+--
+--{master_sha1} {master_ref}NULL... (master_ref==refs/heads/master)
+
+Pack file (for adding missing files to remoute server)
+12B header
+objects (sorted)
+--variable-length header followed by compressed bdata 
+20B SHA-1 hash value
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

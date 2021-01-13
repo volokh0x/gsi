@@ -1,0 +1,12 @@
+
+basic commands:
+    init 
+        reinitializing a repository ?
+    add
+    commit
+
+    hash-object
+    ls-files
+    
+
+
