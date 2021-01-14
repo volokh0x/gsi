@@ -1,22 +1,3 @@
 
-
-
-
-
-
-
-
-check Debug instead of Release
-architecture!!!
-
-basic commands:
-    init 
-        reinitializing a repository ?
-    add
-    commit
-
-    hash-object
-    ls-files
+zlib.error: Error -3 while decompressing data: incorrect header check
     
-
-
