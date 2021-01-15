@@ -52,7 +52,7 @@ namespace gsi
             {
                 if (objt.ToString()!=mode)
                     throw new Exception();
-                Console.WriteLine(Encoding.UTF8.GetString(data));
+                Console.Write(Encoding.UTF8.GetString(data));
             }
             else if (mode=="size")
                 Console.WriteLine(data.Length);
@@ -61,7 +61,7 @@ namespace gsi
             else if (mode=="pretty")
             {
                 if (objt==ObjectType.blob || objt==ObjectType.commit)
-                    Console.WriteLine(Encoding.UTF8.GetString(data));
+                    Console.Write(Encoding.UTF8.GetString(data));
                 else if (objt==ObjectType.tree)
                 {
                     foreach(var el in ReadTree(_data:data))

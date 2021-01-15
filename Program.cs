@@ -10,8 +10,8 @@ namespace gsi
         static void Main(string[] args)
         {
             // X.Init(repo);
-            Console.WriteLine(X.HashObject(Encoding.UTF8.GetBytes("apple\n"), ObjectType.blob, true));
-            X.CatFile("blob", "0e37");     
+            // Console.WriteLine(X.HashObject(Encoding.UTF8.GetBytes("apple\n"), ObjectType.blob, true));
+            X.CatFile("pretty", "4277");     
         }
         static void MainX(string[] args)
         {

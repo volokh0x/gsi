@@ -39,28 +39,19 @@ namespace gsi
         }
         public static void Compress(string file, byte[] data)
         {
-            // using (FileStream dest_stream = new FileStream(file, FileMode.Create)) 
-            //     using (DeflateStream deflate_stream = new DeflateStream(dest_stream, CompressionMode.Compress))
-            //         deflate_stream.Write(data, 0, data.Length); 
-            using (FileStream dest_stream = new FileStream(file, FileMode.Create)) {
+            using (FileStream dest_stream = new FileStream(file, FileMode.CreateNew))
+            {
                 using (var deflater = new DeflaterOutputStream(dest_stream))
                 {
                     deflater.Write(data, 0, data.Length);
-                }
+                }  
             }
+            File.SetAttributes(file, FileAttributes.ReadOnly);
         }
         public static (byte[], int) Decompress(string file)
         {
-            // byte[] data; int dlen;
-            // using (FileStream source_stream = new FileStream(file, FileMode.Open))
-            // {
-            //     data =new byte[source_stream.Length];
-            //     using (DeflateStream deflate_stream = new DeflateStream(source_stream, CompressionMode.Decompress))
-            //         dlen = deflate_stream.Read(data, 0, data.Length);                   
-            // }  
-            // return (data, dlen);
             byte[] data; int dlen;
-            using (FileStream source_stream = new FileStream(file, FileMode.Open))
+            using (FileStream source_stream = new FileStream(file, FileMode.Open, FileAccess.Read))
             {
                 using (var inflater = new InflaterInputStream(source_stream)) 
                 {
