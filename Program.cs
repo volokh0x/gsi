@@ -9,8 +9,8 @@ namespace gsi
         private static string repo {get => Environment.CurrentDirectory;}
         static void Main(string[] args)
         {
-            int x= 12;
-            Console.WriteLine(string.Format("{0:D3}", x));
+            int x = 100644;
+            Console.WriteLine(string.Format("{0:D6}", x));
         }
         static void MainX(string[] args)
         {
