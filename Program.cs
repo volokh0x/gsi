@@ -9,10 +9,9 @@ namespace gsi
         private static string repo {get => Environment.CurrentDirectory;}
         static void Main(string[] args)
         {
-            X.Init(repo);
-            Console.WriteLine(X.HashObject(Encoding.UTF8.GetBytes("apple"), ObjectType.blob, true));
-            X.CatFile("blob", "8e95");
-            
+            // X.Init(repo);
+            Console.WriteLine(X.HashObject(Encoding.UTF8.GetBytes("apple\n"), ObjectType.blob, true));
+            X.CatFile("blob", "0e37");     
         }
         static void MainX(string[] args)
         {
