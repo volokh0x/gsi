@@ -66,10 +66,10 @@ namespace gsi
                 {
                     foreach(var el in ReadTree(_data:data))
                     { 
-                        string type_str=Directory.Exists(el.path)?"tree":"blob"; // !! el.mode
-                        // {:06o} for mode
-                        // Console.WriteLine($"{0:D6mode} {type_str} {el.sha1}\t{el.path}"); 
-                        Console.WriteLine(string.Format("{0:D6} {} {}\t{}", mode, type_str, el.sha1, el.path));  
+                        string type_str=((el.mode>>12)==4)?"tree":"blob";
+                        string mode_oct=Convert.ToString(el.mode, 8);
+                        if (mode_oct.Length==5) mode_oct="0"+mode_oct;
+                        Console.WriteLine($"{mode_oct} {type_str} {el.sha1}\t{el.path}");  
                     }
                 }
             }
