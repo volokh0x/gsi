@@ -83,15 +83,14 @@ namespace gsi
                 throw new Exception();
 
             StructConverter.Unpack(out IndexHeader ih, data, 0);
-            // Console.WriteLine($"{ih.signature} {ih.version} {ih.num_entries}");
             if ( !Enumerable.SequenceEqual(ih.signature, "DIRC") )
                 throw new Exception();
             if (ih.version!=(uint)2)
                 throw new Exception();
             uint num_entries=ih.num_entries;
 
-            byte[] entry_data=new byte[data.Length-32]; Buffer.BlockCopy(data, 12, entry_data, 0, entry_data.Length);
             List<IndexEnry> L = new List<IndexEnry>();
+            byte[] entry_data=new byte[data.Length-32]; Buffer.BlockCopy(data, 12, entry_data, 0, entry_data.Length);          
             int i=0;
             while (i+62<entry_data.Length)
             {

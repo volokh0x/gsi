@@ -14,7 +14,7 @@ namespace gsi
             // X.CatFile("pretty", "4277"); 
 
             foreach (var el in GitPath.ReadIndex())
-                Console.WriteLine($"{el.path} {el.size}");
+                Console.WriteLine($"{el.path} {el.size} {el.sha1}");
 
             
         }
