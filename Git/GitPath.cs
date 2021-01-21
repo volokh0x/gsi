@@ -25,6 +25,11 @@ namespace gsi
                 cd=info.FullName;
             }
         }
+        public static string HexSha1(byte[] hash, int start)
+        {
+            byte[] hash2=new byte[20]; Buffer.BlockCopy(hash, start, hash2, 0, hash2.Length);
+            return string.Concat(hash2.Select(b => b.ToString("x2")));
+        }
         public static string HexSha1(byte[] hash)
         {
             return string.Concat(hash.Select(b => b.ToString("x2")));
@@ -75,7 +80,7 @@ namespace gsi
             {
                 data=File.ReadAllBytes(index);
             } 
-            catch(Exception e) {return null;}
+            catch(Exception) {return null;}
 
             byte[] data_hash=new byte[20]; Buffer.BlockCopy(data, data.Length-20, data_hash, 0, data_hash.Length);
             byte[] tobe_hashed=new byte[data.Length-20]; Buffer.BlockCopy(data, 0, tobe_hashed, 0, tobe_hashed.Length);
@@ -101,6 +106,36 @@ namespace gsi
             if ((ulong)L.Count!=num_entries)
                 throw new Exception();
             return L;
+        }
+        private static List<string> DirSearch(string relpath="")
+        {
+            List<string> L = new List<string>();
+            string fullpath=Path.Combine(wpath, relpath);
+            if (Path.GetFileName(fullpath)==".git") 
+                return L;
+            foreach (string f in Directory.GetFiles(fullpath))
+                L.Add(Path.Combine(relpath,Path.GetFileName(f)));  
+            foreach (string d in Directory.GetDirectories(fullpath))
+            {
+                L.AddRange(DirSearch(Path.GetFileName(d)));
+            }  
+            return L;
+        }
+        public static (List<string>, List<string>, List<string>) GetStatus()
+        {
+            List<string> paths=DirSearch();
+            var entries_by_path = ReadIndex().ToDictionary(X=>X.path);
+            List<string> entry_paths = new List<string>(entries_by_path.Keys);
+            List<string> lch=new List<string>();
+            foreach(var file in paths.Intersect(entry_paths))
+            {
+                if (X.HashObject(File.ReadAllBytes(Path.Combine(wpath,file)), ObjectType.blob, false)!=entries_by_path[file].sha1)
+                    lch.Add(file);
+            }
+            List<string> lnew = new List<string>(paths.Except(entry_paths));
+            List<string> ldel = new List<string>(entry_paths.Except(paths));
+            lch.Sort(); lnew.Sort(); ldel.Sort();
+            return (lch, lnew, ldel);
         }
         public static void Compress(string file, byte[] data)
         {

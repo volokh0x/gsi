@@ -37,12 +37,15 @@ namespace gsi
         {
             return Encoding.UTF8.GetString(src, start, count);
         }
+        private static string UnpackHash(byte[] src, int start)
+        {
+            return GitPath.HexSha1(src, start);
+        }
         public static void Unpack(out IndexHeader ih, byte[] data, int start)
         {
             ih = new IndexHeader{signature=UnpackStr(data, start, 4), 
                                 version=BitConverter.ToUInt32(Unpack(data, start+4, "L")), 
                                 num_entries=BitConverter.ToUInt32(Unpack(data, start+8, "L"))};
-            Console.WriteLine(ih.signature);
         }
         public static void Unpack(out IndexEnry ie, byte[] data, int start)
         {
@@ -56,7 +59,7 @@ namespace gsi
                             uid=BitConverter.ToUInt32(Unpack(data, start+28, "L")),
                             gid=BitConverter.ToUInt32(Unpack(data, start+32, "L")),
                             size=BitConverter.ToUInt32(Unpack(data, start+36, "L")),
-                            sha1=UnpackStr(data, start+36, 20),
+                            sha1=UnpackHash(data, start+40),
                             flags=BitConverter.ToUInt16(Unpack(data, start+60, "H")),
                             path=UnpackStr(data, start+62, Array.IndexOf(data, (byte)0, start+62)-start-62)};
         }

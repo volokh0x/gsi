@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using System.Collections.Generic;
 
 namespace gsi
 {
@@ -12,12 +13,11 @@ namespace gsi
             // X.Init(repo);
             // Console.WriteLine(X.HashObject(Encoding.UTF8.GetBytes("apple\n"), ObjectType.blob, true));
             // X.CatFile("pretty", "4277"); 
+            // X.LsFiles(true);
 
-            foreach (var el in GitPath.ReadIndex())
-                Console.WriteLine($"{el.path} {el.size} {el.sha1}");
-
-            
+            X.Status();
         }
+
         static void MainX(string[] args)
         {
         }
