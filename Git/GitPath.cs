@@ -12,6 +12,7 @@ namespace gsi
     {
         public static string wpath {get => WorkPath();}
         public static string index {get => Path.Combine(wpath, ".git", "index");}
+        public static string master {get => Path.Combine(wpath, ".git", "refs", "heads", "master");}
         private static string WorkPath()
         {
             string cd=Environment.CurrentDirectory;
@@ -118,6 +119,33 @@ namespace gsi
         {
             File.WriteAllBytes(index, StructConverter.Pack(mas_ie));
         }
+        public static string WriteTree()
+        {
+            // !!! only top-level directory allowed !!!
+            List<byte> L = new List<byte>();
+            foreach(var ie in ReadIndex())
+            {
+                string mode = Convert.ToString(ie.mode, 8);
+                if (mode.Length<6)
+                    mode="0"+mode;
+                mode+=" ";
+                L.AddRange(Encoding.UTF8.GetBytes(mode));
+                L.AddRange(Encoding.UTF8.GetBytes(ie.path));
+                L.Add((byte)0);
+                L.AddRange(ByteSha1(ie.sha1));
+            }
+            return X.HashObject(L.ToArray(), ObjectType.tree);
+        }
+        // def write_tree():
+        //     """Write a tree object from the current index entries."""
+        //     tree_entries = []
+        //     for entry in read_index():
+        //         assert '/' not in entry.path, \
+        //                 'currently only supports a single, top-level directory'
+        //         mode_path = '{:o} {}'.format(entry.mode, entry.path).encode()
+        //         tree_entry = mode_path + b'\x00' + entry.sha1
+        //         tree_entries.append(tree_entry)
+        //     return hash_object(b''.join(tree_entries), 'tree')
         private static List<string> DirSearch(string relpath="")
         {
             List<string> L = new List<string>();

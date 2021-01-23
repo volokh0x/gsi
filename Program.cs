@@ -19,9 +19,19 @@ namespace gsi
             // X.LsFiles(true);
             //X.Status();
 
-            PrintIndex();
+            // PrintIndex();
+            // X.Add(new string[]{"a.txt"});
+            // PrintIndex();
+            
             X.Add(new string[]{"a.txt"});
-            PrintIndex();
+            X.Status();
+            X.Commit("HI!", "vit <catchme@gmail.com>");
+            X.Status();
+           
+        }
+        static void MainX(){
+            string s = string.Format("{}", "-");
+            Console.WriteLine(s);
         }
         static void PrintIndex()
         {
