@@ -34,6 +34,13 @@ namespace gsi
         {
             return string.Concat(hash.Select(b => b.ToString("x2")));
         }
+        public static byte[] ByteSha1(string hex)
+        {
+            return Enumerable.Range(0, hex.Length)
+                            .Where(x => x % 2 == 0)
+                            .Select(x => Convert.ToByte(hex.Substring(x, 2), 16))
+                            .ToArray();
+        }
         public static string PathObject(string hash)
         {
             return Path.Combine(wpath, ".git", "objects", hash.Substring(0,2), hash.Substring(2));
@@ -104,8 +111,12 @@ namespace gsi
                 i+=((62 + ie.path.Length + 8) / 8) * 8;
             }
             if ((ulong)L.Count!=num_entries)
-                throw new Exception();
+                throw new Exception($"{(ulong)L.Count} (counted)!= {num_entries} (in index)");
             return L;
+        }
+        public static void WriteIndex(List<IndexEnry> mas_ie)
+        {
+            File.WriteAllBytes(index, StructConverter.Pack(mas_ie));
         }
         private static List<string> DirSearch(string relpath="")
         {

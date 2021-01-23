@@ -2,6 +2,7 @@ using System;
 using System.Text;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 
 namespace gsi 
 {
@@ -63,9 +64,71 @@ namespace gsi
                             flags=BitConverter.ToUInt16(Unpack(data, start+60, "H")),
                             path=UnpackStr(data, start+62, Array.IndexOf(data, (byte)0, start+62)-start-62)};
         }
-        public static byte[] Pack(IndexHeader ih)
+        private static byte[] Pack(UInt16 x, bool is_big_endian=true)
         {
-            return null;
+            byte[] mas = BitConverter.GetBytes(x);
+            if (is_big_endian)
+                Array.Reverse(mas);
+            return mas;
         }
+        private static byte[] Pack(UInt32 x, bool is_big_endian=true)
+        {
+            byte[] mas = BitConverter.GetBytes(x);
+            if (is_big_endian)
+                Array.Reverse(mas);
+            return mas;
+        }
+        private static byte[] Pack(string s)
+        {
+            return Encoding.UTF8.GetBytes(s);
+        }
+        public static byte[] Pack(List<IndexEnry> mas_ie)
+        {
+            // packed_entries.AddRange(Pack(3));
+            List<byte> res=new List<byte>();
+            // header
+            res.AddRange(Pack("DIRC"));
+            res.AddRange(Pack(Convert.ToUInt32(2)));
+            res.AddRange(Pack(Convert.ToUInt32(mas_ie.Count)));
+            // body
+            foreach(var ie in mas_ie)
+            {
+                res.AddRange(Pack(ie.ctime_s));
+                res.AddRange(Pack(ie.ctime_n));
+                res.AddRange(Pack(ie.mtime_s));
+                res.AddRange(Pack(ie.mtime_n));
+                res.AddRange(Pack(ie.dev));
+                res.AddRange(Pack(ie.ino));
+                res.AddRange(Pack(ie.mode));
+                res.AddRange(Pack(ie.uid));
+                res.AddRange(Pack(ie.gid));
+                res.AddRange(Pack(ie.size));
+                res.AddRange(GitPath.ByteSha1(ie.sha1));
+                res.AddRange(Pack(ie.flags));
+                byte[] mpath=Pack(ie.path);
+                res.AddRange(mpath); // big/small endian?
+                int length=((62 + mpath.Length+ 8) / 8) * 8;
+                for (int _=0; _<length-62-mpath.Length; _++)
+                    res.Add((byte)0);
+            }
+            // tail sha1
+            res.AddRange(SHA1.Create().ComputeHash(res.ToArray()));
+            return res.ToArray();
+        }
+        // def write_index(entries):
+        //     packed_entries = []
+        //     for entry in entries:
+        //         entry_head = struct.pack('!LLLLLLLLLL20sH',
+        //                 entry.ctime_s, entry.ctime_n, entry.mtime_s, entry.mtime_n,
+        //                 entry.dev, entry.ino, entry.mode, entry.uid, entry.gid,
+        //                 entry.size, entry.sha1, entry.flags)
+        //         path = entry.path.encode()
+        //         length = ((62 + len(path) + 8) // 8) * 8
+        //         packed_entry = entry_head + path + b'\x00' * (length - 62 - len(path))
+        //         packed_entries.append(packed_entry)
+        //     header = struct.pack('!4sLL', b'DIRC', 2, len(entries))
+        //     all_data = header + b''.join(packed_entries)
+        //     digest = hashlib.sha1(all_data).digest()
+        //     write_file(os.path.join('.git', 'index'), all_data + digest)
     }
 }
