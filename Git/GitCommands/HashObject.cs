@@ -1,9 +1,7 @@
 using System;
 using System.IO;
-using System.IO.Compression;
 using System.Text;
 using System.Security.Cryptography;
-using System.Linq;
 
 namespace gsi
 {
@@ -22,7 +20,7 @@ namespace gsi
 
             if (write)
             {
-                string path = GitPath.PathObject(hash);
+                string path = GitPath.ObjectFullPath(hash);
                 if (!File.Exists(path))
                 {
                     Directory.CreateDirectory(Path.GetDirectoryName(path));;   

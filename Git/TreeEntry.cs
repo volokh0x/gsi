@@ -2,7 +2,7 @@ namespace gsi
 {
     public struct TreeEntry
     {
-        public int mode;
+        public uint mode;
         public string path;
         public string sha1;
     }

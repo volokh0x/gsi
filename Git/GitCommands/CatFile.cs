@@ -1,17 +1,15 @@
 using System;
 using System.IO;
 using System.Text;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace gsi
 {
     partial class X
     {
         
-        public static void CatFile(string mode, string sha1_prefix)
+        public static void CatFile(string mode, string prefix)
         {
-            (ObjectType objt, byte[] data)=ReadObject(sha1_prefix);
+            (ObjectType objt, byte[] data)=ReadObject(prefix);
             if (mode=="commit" || mode=="tree" || mode=="blob")
             {
                 if (objt.ToString()!=mode)
@@ -30,9 +28,8 @@ namespace gsi
                 {
                     foreach(var el in GitPath.ReadTree(_data:data))
                     { 
-                        string type_str=GitPath.IsDir(el.mode)?"tree":"blob";
-                        string mode_oct=Convert.ToString(el.mode, 8);
-                        if (mode_oct.Length==5) mode_oct="0"+mode_oct;
+                        string type_str=(el.mode<<12==(uint)Mono.Unix.FileTypes.Directory?"tree":"blob");
+                        string mode_oct=GetOctal6(el.mode);
                         Console.WriteLine($"{mode_oct} {type_str} {el.sha1}\t{el.path}");  
                     }
                 }

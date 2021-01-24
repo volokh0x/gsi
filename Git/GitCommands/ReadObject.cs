@@ -7,9 +7,9 @@ namespace gsi
 {
     partial class X
     {
-        public static (ObjectType, byte[]) ReadObject(string sha1_prefix)  
+        public static (ObjectType, byte[]) ReadObject(string prefix)  
         {
-            string path = FindObject(sha1_prefix);
+            string path = FindObject(prefix);
             byte[] full_data; int fd_len;
 
             (full_data, fd_len)=GitPath.Decompress(path);

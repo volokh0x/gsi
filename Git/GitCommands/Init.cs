@@ -5,28 +5,26 @@ namespace gsi
 {
     partial class X 
     {
-        private static void MakeGitDir(string repo)
+        private static void CreateGitStructure(string rpath)
         {
-            Directory.CreateDirectory(Path.Combine(repo, ".git", "refs", "heads"));
-            Directory.CreateDirectory(Path.Combine(repo, ".git", "refs", "tags"));
-            Directory.CreateDirectory(Path.Combine(repo, ".git", "objects"));
-            File.WriteAllText(Path.Combine(repo, ".git", "HEAD"), 
-                $"ref: {Path.Combine("refs", "heads", "master")}");
+            Directory.CreateDirectory(GitPath.DirFullPath["objects"]);
+            Directory.CreateDirectory(GitPath.DirFullPath["heads"]);
+            Directory.CreateDirectory(GitPath.DirFullPath["tags"]);
+            File.WriteAllText(GitPath.HEAD, $"ref: {Path.GetRelativePath(GitPath.DirFullPath[".git"], GitPath.heads_master)}");
         }
-        private static void Reinit(string repo)
+        public static void Init(string rpath) 
         {
-            Directory.Delete(Path.Combine(repo, ".git"), true);
-            MakeGitDir(repo);
-            Console.WriteLine($"reinitialized empty repository: {repo}");
-        }
-        public static void Init(string repo) 
-        {
-            if (Directory.Exists(Path.Combine(repo, ".git")))
-                Reinit(repo);
+            GitPath.GitPathInitRoot(rpath);
+            if (Directory.Exists(GitPath.DirFullPath[".git"]))
+            {
+                Directory.Delete(GitPath.DirFullPath[".git"], true);
+                CreateGitStructure(rpath);
+                Console.WriteLine($"reinitialized non-empty repository: {rpath}");
+            }
             else
             {
-                MakeGitDir(repo);
-                Console.WriteLine($"initialized empty repository: {repo}");
+                CreateGitStructure(rpath);
+                Console.WriteLine($"initialized empty repository: {rpath}");
             }    
         }
     }
