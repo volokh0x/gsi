@@ -28,7 +28,7 @@ namespace gsi
                 {
                     foreach(var el in GitPath.ReadTree(_data:data))
                     { 
-                        string type_str=(el.mode<<12==(uint)Mono.Unix.FileTypes.Directory?"tree":"blob");
+                        string type_str=GitPath.IsDir(el.mode)?"tree":"blob";
                         string mode_oct=GetOctal6(el.mode);
                         Console.WriteLine($"{mode_oct} {type_str} {el.sha1}\t{el.path}");  
                     }

@@ -1,0 +1,9 @@
+X.Init(repo);
+X.Add(new string[]{"a.txt"});
+X.LsFiles(true);
+X.Status();
+X.Commit("HI!", "vit <catchme@gmail.com>");
+X.Status();
+
+
+

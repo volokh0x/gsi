@@ -2,26 +2,17 @@ using System;
 using System.IO;
 using System.Text;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace gsi
 {
     #nullable enable
     partial class X
     {
-        private static string? GetLocalMasterHash()
-        {
-            try
-            {
-                return File.ReadAllText(GitPath.heads_master).Trim();
-            }
-            catch(Exception) {return null;}
-        }
         public static string Commit(string msg, string? author=null)  
         {
             List<string> L = new List<string>();
             string tree_sha1 = GitPath.WriteTree();
-            string? parent = GetLocalMasterHash();
+            string? parent = GitPath.GetLocalMasterHash();
             if (author==null)
                 author=$"{Environment.GetEnvironmentVariable("GIT_AUTHOR_NAME")} <{Environment.GetEnvironmentVariable("GIT_AUTHOR_EMAIL")}>";
             uint timestamp=GetTimeStamp(DateTime.UtcNow);

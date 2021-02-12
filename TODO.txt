@@ -1,9 +1,0 @@
-
-octal stuff:
-    // '{:6o} {} {:}\t{}'
-    string mode_oct=Convert.ToString(ie.mode, 8);
-    if (mode_oct.Length==5) mode_oct="0"+mode_oct;
-
-git specification?
-- environment variables
-

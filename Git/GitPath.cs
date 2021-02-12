@@ -4,11 +4,9 @@ using System.Text;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Collections.Generic;
-using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 
 namespace gsi
 {
-
     class GitPath
     {
         public static readonly string cwd = Environment.CurrentDirectory;
@@ -28,7 +26,7 @@ namespace gsi
                     DirRelPath["tags"]=Path.Combine(DirRelPath["refs"], "tags");
             GitPathInitRoot(null);
         }
-        public static void GitPathInitRoot(string? rpath=null)
+        public static void GitPathInitRoot(string rpath=null)
         {
             root = (rpath==null? WorkPath():Path.GetFullPath(rpath));
             DirFullPath = new Dictionary<string, string>();
@@ -55,27 +53,23 @@ namespace gsi
         {
             return Path.Combine(DirFullPath["objects"], prefix.Substring(0,2), prefix.Substring(2));
         }
-        public static string HexSha1(byte[] hash, int start)
+        public static string? GetLocalMasterHash()
         {
-            byte[] hash2=new byte[20]; Buffer.BlockCopy(hash, start, hash2, 0, hash2.Length);
-            return string.Concat(hash2.Select(b => b.ToString("x2")));
+            try
+            {
+                return File.ReadAllText(GitPath.heads_master).Trim();
+            }
+            catch(Exception) {return null;}
         }
-        public static string HexSha1(byte[] hash)
+        public static bool IsDir(uint mode)
         {
-            return string.Concat(hash.Select(b => b.ToString("x2")));
+            return mode<<12==(uint)Mono.Unix.FileTypes.Directory;
         }
-        public static byte[] ByteSha1(string hex)
+        public static int FlagstStage(UInt16 flags)
         {
-            return Enumerable.Range(0, hex.Length)
-                            .Where(x => x % 2 == 0)
-                            .Select(x => Convert.ToByte(hex.Substring(x, 2), 16))
-                            .ToArray();
+            return (flags>>12)&3; 
         }
-        public static bool IsDir(int mode)
-        {
-            return (mode>>12)==4;
-        }
-        public static List<TreeEntry> ReadTree(string? sha1_prefix=null, byte[] _data=null)
+        public static List<TreeEntry> ReadTree(string sha1_prefix=null, byte[] _data=null)
         {
             ObjectType objt; byte[] data=_data;
             if (sha1_prefix!=null)
@@ -106,6 +100,11 @@ namespace gsi
             }
             return L;
         }
+        public static string WriteTree()
+        {
+            // !!! only top-level directory allowed !!!
+            return X.HashObject(StructConverter.PackTree(ReadIndex()), ObjectType.tree);
+        }
         public static List<IndexEnry> ReadIndex()
         {
             List<IndexEnry> L = new List<IndexEnry>();
@@ -121,7 +120,7 @@ namespace gsi
             if ( !Enumerable.SequenceEqual(data_hash, SHA1.Create().ComputeHash(tobe_hashed)) )
                 throw new Exception();
 
-            StructConverter.Unpack(out IndexHeader ih, data, 0);
+            StructConverter.UnpackIndexHeader(out IndexHeader ih, data, 0);
             if ( !Enumerable.SequenceEqual(ih.signature, "DIRC") )
                 throw new Exception();
             if (ih.version!=(uint)2)
@@ -132,7 +131,7 @@ namespace gsi
             int i=0;
             while (i+62<entry_data.Length)
             {
-                StructConverter.Unpack(out IndexEnry ie, entry_data, i);
+                StructConverter.UnpackIndexEnry(out IndexEnry ie, entry_data, i);
                 L.Add(ie);
                 i+=((62 + ie.path.Length + 8) / 8) * 8;
             }
@@ -142,24 +141,7 @@ namespace gsi
         }
         public static void WriteIndex(List<IndexEnry> mas_ie)
         {
-            File.WriteAllBytes(index, StructConverter.Pack(mas_ie));
-        }
-        public static string WriteTree()
-        {
-            // !!! only top-level directory allowed !!!
-            List<byte> L = new List<byte>();
-            foreach(var ie in ReadIndex())
-            {
-                string mode = Convert.ToString(ie.mode, 8);
-                if (mode.Length<6)
-                    mode="0"+mode;
-                mode+=" ";
-                L.AddRange(Encoding.UTF8.GetBytes(mode));
-                L.AddRange(Encoding.UTF8.GetBytes(ie.path));
-                L.Add((byte)0);
-                L.AddRange(ByteSha1(ie.sha1));
-            }
-            return X.HashObject(L.ToArray(), ObjectType.tree);
+            File.WriteAllBytes(index, StructConverter.PackIndex(mas_ie));
         }
         private static List<string> DirSearch(string relpath="")
         {
@@ -190,30 +172,6 @@ namespace gsi
             List<string> ldel = new List<string>(entry_paths.Except(paths));
             lch.Sort(); lnew.Sort(); ldel.Sort();
             return (lch, lnew, ldel);
-        }
-        public static void Compress(string file, byte[] data)
-        {
-            using (FileStream dest_stream = new FileStream(file, FileMode.CreateNew))
-            {
-                using (var deflater = new DeflaterOutputStream(dest_stream))
-                {
-                    deflater.Write(data, 0, data.Length);
-                }  
-            }
-            File.SetAttributes(file, FileAttributes.ReadOnly);
-        }
-        public static (byte[], int) Decompress(string file)
-        {
-            byte[] data; int dlen;
-            using (FileStream source_stream = new FileStream(file, FileMode.Open, FileAccess.Read))
-            {
-                using (var inflater = new InflaterInputStream(source_stream)) 
-                {
-                    data =new byte[source_stream.Length];
-                    dlen = inflater.Read(data, 0, data.Length);
-                }                 
-            }  
-            return (data, dlen);
-        }   
+        } 
     }
 }

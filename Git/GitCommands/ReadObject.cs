@@ -12,7 +12,7 @@ namespace gsi
             string path = FindObject(prefix);
             byte[] full_data; int fd_len;
 
-            (full_data, fd_len)=GitPath.Decompress(path);
+            (full_data, fd_len)=Decompress(path);
             
             int i = Array.IndexOf(full_data, (byte)0);
             byte[] header = new byte[i];
@@ -21,6 +21,8 @@ namespace gsi
             string[] mas = Encoding.UTF8.GetString(header).Split(' ');
             ObjectType obj_type=(ObjectType)Enum.Parse(typeof(ObjectType), mas[0]);
             byte[] data = new byte[fd_len-i-1];
+            Console.WriteLine(prefix);
+            Console.WriteLine($"{mas[1]} {data.Length}");
             if (Convert.ToInt32(mas[1])!=data.Length)
                 throw new Exception();
             Buffer.BlockCopy(full_data, i+1, data, 0, data.Length);

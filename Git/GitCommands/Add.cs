@@ -11,14 +11,11 @@ namespace gsi
     {
         public static void Add(string[] paths)  
         {
-            List<IndexEnry> L = GitPath.ReadIndex().Where(X=>!paths.Contains(X.path)).ToList();
+            List<IndexEnry> L = GitPath.ReadIndex().Where(ie=>!paths.Contains(ie.path)).ToList();
             foreach(var path in paths)
             {
                 string sha1=X.HashObject(File.ReadAllBytes(path), ObjectType.blob);
                 ushort flags=(UInt16)Encoding.UTF8.GetBytes(path).Length;
-                // ???
-                // if (flags < (1 << 12))
-                //     throw new Exception(">>flag excpetion");
                 
                 UnixFileInfo unixFileInfo = new UnixFileInfo(path);
                 uint tt = GetTimeStamp(new FileInfo(path).LastWriteTimeUtc);

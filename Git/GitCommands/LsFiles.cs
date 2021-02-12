@@ -1,7 +1,4 @@
 using System;
-using System.IO;
-using System.IO.Compression;
-using System.Text;
 
 namespace gsi
 {
@@ -13,12 +10,12 @@ namespace gsi
             {
                 if (details)
                 {
-                    int stage=(ie.flags>>12)&3; 
-                    // '{:6o} {} {:}\t{}'
+                    int stage=GitPath.FlagstStage(ie.flags);
                     string mode_oct=GetOctal6(ie.mode);
                     Console.WriteLine($"{mode_oct} {ie.sha1} {stage}\t{ie.path}");
                 }
-                else {
+                else 
+                {
                     Console.WriteLine(ie.path);
                 }
             }

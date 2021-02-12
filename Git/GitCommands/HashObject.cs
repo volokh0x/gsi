@@ -16,7 +16,7 @@ namespace gsi
             full_data[header.Length]=0;
             Buffer.BlockCopy(data, 0, full_data, header.Length+1, data.Length);
 
-            string hash = GitPath.HexSha1(SHA1.Create().ComputeHash(full_data));
+            string hash = Sha1tHex(SHA1.Create().ComputeHash(full_data));
 
             if (write)
             {
@@ -24,7 +24,7 @@ namespace gsi
                 if (!File.Exists(path))
                 {
                     Directory.CreateDirectory(Path.GetDirectoryName(path));;   
-                    GitPath.Compress(path, full_data);   
+                    Compress(path, full_data);   
                 }
             }
             
