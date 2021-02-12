@@ -7,6 +7,7 @@ using System.Collections.Generic;
 
 namespace gsi
 {
+    
     class GitPath
     {
         public static readonly string cwd = Environment.CurrentDirectory;
@@ -53,6 +54,7 @@ namespace gsi
         {
             return Path.Combine(DirFullPath["objects"], prefix.Substring(0,2), prefix.Substring(2));
         }
+        #nullable enable
         public static string? GetLocalMasterHash()
         {
             try
@@ -61,6 +63,7 @@ namespace gsi
             }
             catch(Exception) {return null;}
         }
+        #nullable disable
         public static bool IsDir(uint mode)
         {
             return mode<<12==(uint)Mono.Unix.FileTypes.Directory;
