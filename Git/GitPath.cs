@@ -54,6 +54,39 @@ namespace gsi
         {
             return Path.Combine(DirFullPath["objects"], prefix.Substring(0,2), prefix.Substring(2));
         }
+        public static string FindObject(string prefix)
+        {
+            if (prefix.Length < 2) 
+                throw new ArgumentException();
+            string obj_dir=Path.Combine(GitPath.DirFullPath["objects"], prefix.Substring(0,2));
+            string rest = prefix.Substring(2);
+            string[] objects = Directory.GetFiles(obj_dir, $"{rest}*");
+            
+            if (objects.Length>2) 
+                throw new Exception();
+            return objects[0];
+        }
+        public static (ObjectType, byte[]) ReadObject(string prefix)  
+        {
+            string path = FindObject(prefix);
+            byte[] full_data; int fd_len;
+
+            (full_data, fd_len)=X.Decompress(path);
+            
+            int i = Array.IndexOf(full_data, (byte)0);
+            byte[] header = new byte[i];
+            Buffer.BlockCopy(full_data, 0, header, 0, header.Length);
+
+            string[] mas = Encoding.UTF8.GetString(header).Split(' ');
+            ObjectType obj_type=(ObjectType)Enum.Parse(typeof(ObjectType), mas[0]);
+            byte[] data = new byte[fd_len-i-1];
+            Console.WriteLine(prefix);
+            Console.WriteLine($"{mas[1]} {data.Length}");
+            if (Convert.ToInt32(mas[1])!=data.Length)
+                throw new Exception();
+            Buffer.BlockCopy(full_data, i+1, data, 0, data.Length);
+            return (obj_type, data); 
+        }
         #nullable enable
         public static string? GetLocalMasterHash()
         {
@@ -77,7 +110,7 @@ namespace gsi
             ObjectType objt; byte[] data=_data;
             if (sha1_prefix!=null)
             {
-                (objt, data)=X.ReadObject(sha1_prefix);
+                (objt, data)=ReadObject(sha1_prefix);
                 if (objt!=ObjectType.tree)
                     throw new Exception();
             }

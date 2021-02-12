@@ -9,7 +9,7 @@ namespace gsi
         
         public static void CatFile(string mode, string prefix)
         {
-            (ObjectType objt, byte[] data)=ReadObject(prefix);
+            (ObjectType objt, byte[] data)=GitPath.ReadObject(prefix);
             if (mode=="commit" || mode=="tree" || mode=="blob")
             {
                 if (objt.ToString()!=mode)
