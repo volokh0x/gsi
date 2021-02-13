@@ -7,7 +7,7 @@ namespace gsi
 {
     partial class X
     {
-        public static string HashObject(byte[] data, ObjectType obj_type, bool write=true)
+        public static string WriteObject(byte[] data, ObjectType obj_type, bool write=true)
         {
             byte[] header = Encoding.UTF8.GetBytes($"{obj_type} {data.Length}");
             byte[] full_data = new byte[header.Length+1+data.Length];

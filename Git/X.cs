@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Collections.Generic;
 using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
 
 namespace gsi
@@ -47,16 +48,22 @@ namespace gsi
         }
         public static (byte[], int) Decompress(string file)
         {
-            byte[] data; int dlen;
+            List<byte> L=new List<byte>();
             using (FileStream source_stream = new FileStream(file, FileMode.Open, FileAccess.Read))
             {
                 using (var inflater = new InflaterInputStream(source_stream)) 
                 {
-                    data =new byte[source_stream.Length];
-                    dlen = inflater.Read(data, 0, data.Length);
+                    byte[] data =new byte[source_stream.Length];
+                    while (inflater.Available==1)
+                    {
+                        int dlen = inflater.Read(data, 0, data.Length);
+                        byte[] data2=new byte[dlen];
+                        Buffer.BlockCopy(data,0,data2,0,dlen);
+                        L.AddRange(data2);
+                    } 
                 }                 
-            }  
-            return (data, dlen);
+            } 
+            return (L.ToArray(), L.Count);
         }  
     }
 }

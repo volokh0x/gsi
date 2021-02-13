@@ -68,10 +68,7 @@ namespace gsi
         }
         public static (ObjectType, byte[]) ReadObject(string prefix)  
         {
-            string path = FindObject(prefix);
-            byte[] full_data; int fd_len;
-
-            (full_data, fd_len)=X.Decompress(path);
+            (byte[] full_data, int fd_len)=X.Decompress(FindObject(prefix));
             
             int i = Array.IndexOf(full_data, (byte)0);
             byte[] header = new byte[i];
@@ -80,41 +77,21 @@ namespace gsi
             string[] mas = Encoding.UTF8.GetString(header).Split(' ');
             ObjectType obj_type=(ObjectType)Enum.Parse(typeof(ObjectType), mas[0]);
             byte[] data = new byte[fd_len-i-1];
-            Console.WriteLine(prefix);
-            Console.WriteLine($"{mas[1]} {data.Length}");
             if (Convert.ToInt32(mas[1])!=data.Length)
                 throw new Exception();
             Buffer.BlockCopy(full_data, i+1, data, 0, data.Length);
             return (obj_type, data); 
         }
-        #nullable enable
-        public static string? GetLocalMasterHash()
+        public static string ReadBlob(string prefix)
         {
-            try
-            {
-                return File.ReadAllText(GitPath.heads_master).Trim();
-            }
-            catch(Exception) {return null;}
+            (ObjectType obj_type, byte[] data)=ReadObject(prefix);
+            if (obj_type!=ObjectType.blob) throw new Exception();
+            return Encoding.UTF8.GetString(data);
         }
-        #nullable disable
-        public static bool IsDir(uint mode)
+        public static List<TreeEntry> ReadTree(string prefix)
         {
-            return mode<<12==(uint)Mono.Unix.FileTypes.Directory;
-        }
-        public static int FlagstStage(UInt16 flags)
-        {
-            return (flags>>12)&3; 
-        }
-        public static List<TreeEntry> ReadTree(string sha1_prefix=null, byte[] _data=null)
-        {
-            ObjectType objt; byte[] data=_data;
-            if (sha1_prefix!=null)
-            {
-                (objt, data)=ReadObject(sha1_prefix);
-                if (objt!=ObjectType.tree)
-                    throw new Exception();
-            }
-            else if (_data==null)
+            (ObjectType objt, byte[] data)=ReadObject(prefix);
+            if (objt!=ObjectType.tree)
                 throw new Exception();
             int i=0, end; List<TreeEntry> L=new List<TreeEntry>();
             for (int _=0; _<1000; _++)
@@ -139,7 +116,22 @@ namespace gsi
         public static string WriteTree()
         {
             // !!! only top-level directory allowed !!!
-            return X.HashObject(StructConverter.PackTree(ReadIndex()), ObjectType.tree);
+            return X.WriteObject(StructConverter.PackTree(ReadIndex()), ObjectType.tree);
+        }
+        public static string ReadCommit(string prefix)
+        {
+            (ObjectType obj_type, byte[] data)=ReadObject(prefix);
+            if (obj_type!=ObjectType.commit) throw new Exception();
+            return Encoding.UTF8.GetString(data);
+        }
+        #nullable enable
+        public static string? GetLocalMasterHash()
+        {
+            try
+            {
+                return File.ReadAllText(GitPath.heads_master).Trim();
+            }
+            catch(Exception) {return null;}
         }
         public static List<IndexEnry> ReadIndex()
         {
@@ -179,6 +171,15 @@ namespace gsi
         {
             File.WriteAllBytes(index, StructConverter.PackIndex(mas_ie));
         }
+        #nullable disable
+        public static bool IsDir(uint mode)
+        {
+            return mode<<12==(uint)Mono.Unix.FileTypes.Directory;
+        }
+        public static int FlagstStage(UInt16 flags)
+        {
+            return (flags>>12)&3; 
+        }
         private static List<string> DirSearch(string relpath="")
         {
             List<string> L = new List<string>();
@@ -201,7 +202,7 @@ namespace gsi
             List<string> lch=new List<string>();
             foreach(var file in paths.Intersect(entry_paths))
             {
-                if (X.HashObject(File.ReadAllBytes(Path.Combine(root,file)), ObjectType.blob, false)!=entries_by_path[file].sha1)
+                if (X.WriteObject(File.ReadAllBytes(Path.Combine(root,file)), ObjectType.blob, false)!=entries_by_path[file].sha1)
                     lch.Add(file);
             }
             List<string> lnew = new List<string>(paths.Except(entry_paths));

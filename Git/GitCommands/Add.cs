@@ -14,7 +14,7 @@ namespace gsi
             List<IndexEnry> L = GitPath.ReadIndex().Where(ie=>!paths.Contains(ie.path)).ToList();
             foreach(var path in paths)
             {
-                string sha1=X.HashObject(File.ReadAllBytes(path), ObjectType.blob);
+                string sha1=X.WriteObject(File.ReadAllBytes(path), ObjectType.blob);
                 ushort flags=(UInt16)Encoding.UTF8.GetBytes(path).Length;
                 
                 UnixFileInfo unixFileInfo = new UnixFileInfo(path);

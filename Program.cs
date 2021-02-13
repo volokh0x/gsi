@@ -14,7 +14,9 @@ namespace gsi
         private static string repo {get => Environment.CurrentDirectory;}
         static void Main(string[] args)
         {
-          // ...
+          X.CatFile("tree", "cbbb");
+          X.CatFile("commit", "97a3");
+          X.CatFile("blob", "0b06");
         }
     }
 }

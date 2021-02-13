@@ -1,0 +1,32 @@
+======================================================
+blob: (path is sha1 of it's content, that zlib compress)
+{type_str} {size_str}NULL
+{data} 
+======================================================
+tree:
+{type_str} {size_str}NULL
+TreeEntries:
+    {mode} {path}NULL{sha1_bin}
+    ...
+======================================================
+commit:
+{type_str} {size_str}NULL
+tree {sha1_str}
+parent {sha1_str} (to a commit object)
+author {name} {email} {timestamp} {utc_offset}
+committer {name} {email} {timestamp} {utc_offset}
+
+{message}
+======================================================
+index:
+DIRC{version=2}{num_entries} (12B header)
+IndexEntries:  (entries are sorted by path)
+    {ctime_s}{ctime_n}{mtime_s}{mtime_n}{dev}{ino}{mode}{uid}
+    {gid}{size}{sha1}{flags}{path} 
+    NULLNULL.. (add as many NULL so path len % 8 == 0)
+    ... 
+{sha1_bin} (20B hash of index content)
+======================================================
+HEAD: 
+ref: {refs/heads/master} (branch file stores sha1 of commit)
+======================================================

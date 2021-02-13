@@ -28,7 +28,7 @@ namespace gsi
             L.Add(msg);
             L.Add($"");
 
-            string sha1 = X.HashObject(Encoding.UTF8.GetBytes(string.Join("\n", L)), ObjectType.commit);
+            string sha1 = X.WriteObject(Encoding.UTF8.GetBytes(string.Join("\n", L)), ObjectType.commit);
             File.WriteAllText(GitPath.heads_master, sha1+"\n");
             Console.WriteLine($"commited to master {sha1}");
             return sha1;
