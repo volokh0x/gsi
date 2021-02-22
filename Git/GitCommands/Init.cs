@@ -10,7 +10,7 @@ namespace gsi
             Directory.CreateDirectory(GitPath.DirFullPath["objects"]);
             Directory.CreateDirectory(GitPath.DirFullPath["heads"]);
             Directory.CreateDirectory(GitPath.DirFullPath["tags"]);
-            File.WriteAllText(GitPath.HEAD, $"ref: {Path.GetRelativePath(GitPath.DirFullPath[".git"], GitPath.heads_master)}");
+            File.WriteAllText(GitPath.HEAD, $"ref: {Path.GetRelativePath(GitPath.DirFullPath[".git"], GitPath.heads_master)}\n");
         }
         public static void Init(string rpath) 
         {

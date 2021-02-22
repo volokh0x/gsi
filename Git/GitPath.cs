@@ -30,12 +30,18 @@ namespace gsi
         public static void GitPathInitRoot(string rpath=null)
         {
             root = (rpath==null? WorkPath():Path.GetFullPath(rpath));
+            if (root==null) return;
             DirFullPath = new Dictionary<string, string>();
             foreach(KeyValuePair<string, string> el in DirRelPath)
                 DirFullPath[el.Key]=Path.Combine(root, el.Value);
             HEAD = Path.Combine(DirFullPath[".git"], "HEAD");
             index = Path.Combine(DirFullPath[".git"], "index");
             heads_master = Path.Combine(DirFullPath["heads"], "master");
+        }
+        public static void AssertValidRoot()
+        {
+            if (root==null)
+                throw new Exception("not a gsi repository");
         }
         private static string WorkPath()
         {
@@ -46,9 +52,13 @@ namespace gsi
                     return dir;
                 var info = Directory.GetParent(dir);
                 if (info==null)
-                    return GitPath.cwd;
+                    return null;
                 dir=info.FullName;
             }
+        }
+        public static string FileRelPath(string path)
+        {
+            return Path.GetRelativePath(root, path);
         }
         public static string ObjectFullPath(string prefix)
         {
@@ -157,7 +167,7 @@ namespace gsi
 
             byte[] entry_data=new byte[data.Length-32]; Buffer.BlockCopy(data, 12, entry_data, 0, entry_data.Length);          
             int i=0;
-            while (i+62<entry_data.Length)
+            for (int _=0; _<num_entries; _++)
             {
                 StructConverter.UnpackIndexEnry(out IndexEnry ie, entry_data, i);
                 L.Add(ie);

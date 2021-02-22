@@ -44,7 +44,6 @@ namespace gsi
                     deflater.Write(data, 0, data.Length);
                 }  
             }
-            File.SetAttributes(file, FileAttributes.ReadOnly);
         }
         public static (byte[], int) Decompress(string file)
         {

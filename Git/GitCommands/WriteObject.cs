@@ -25,6 +25,7 @@ namespace gsi
                 {
                     Directory.CreateDirectory(Path.GetDirectoryName(path));;   
                     Compress(path, full_data);   
+                    File.SetAttributes(path, FileAttributes.ReadOnly);
                 }
             }
             
