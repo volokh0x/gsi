@@ -25,7 +25,7 @@ IndexEntries:  (entries are sorted by path)
     {gid}{size}{sha1}{flags}{path} 
     NULLNULL.. (add as many NULL so path len % 8 == 0)
     ... 
-{extensions} (!!!should be ignored, you heare me!?)
+{extensions} (!!!should be ignored, you hear me!?)
 {sha1_bin} (20B hash of index content)
 ======================================================
 HEAD: 

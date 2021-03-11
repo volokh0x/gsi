@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
@@ -15,11 +16,8 @@ namespace gsi
         private static string repo {get => Environment.CurrentDirectory;}
         static void Main(string[] args)
         {
-          // X.Init(repo);
-          X.Add(new string[]{"a"});
-          X.Commit("mymsg","myauthor");
-          X.LsFiles(true);
-          
+            
+            
 
         }
     }

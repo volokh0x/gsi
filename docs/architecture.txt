@@ -1,0 +1,22 @@
+
+class Main
+
+class GitCommands
+
+class GitPath
+
+class Config
+
+interface IObj
+class Blob
+class Tree
+class Commit
+
+interface IRef
+class HEAD
+class FETCH_HEAD
+class MERGE_HEAD
+class GitRef
+
+
+
