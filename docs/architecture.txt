@@ -3,12 +3,35 @@ class Main
 
 class GitCommands
 
-class GitPath
-
 class Config
+class Index
 
 interface IObj
-class Blob
+{
+    string FullPath;
+    (ObjectType,byte[]) ReadFile()
+    void WriteFile()
+}
+class Blob : IObj
+{
+    string AssociatedFilePath;
+    void Blob(string path, bool associated_file_path=true)
+    {
+        if (associated_file_path)
+            AssociatedFilePath=path;
+        else
+            FullPath=path;
+    }
+    (ObjectType,byte[]) Read()
+    {
+        (ot,mas)=base.Read();
+        if (ot!=ObjectType.blob) throw new Exception();
+    }
+    void WriteFile()
+    {
+        
+    }
+}
 class Tree
 class Commit
 
@@ -18,5 +41,6 @@ class FETCH_HEAD
 class MERGE_HEAD
 class GitRef
 
+class GitPath
 
 

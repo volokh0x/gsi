@@ -11,14 +11,16 @@ using Mono.Options;
 
 namespace gsi
 {
-    class Program
+    static class Program
     {
-        private static string repo {get => Environment.CurrentDirectory;}
-        static void Main(string[] args)
+        static int Main (string[] args)
         {
-            
-            
-
+            var commands = new CommandSet ("gsi") {
+                "usage: gsi COMMAND [OPTIONS]+",
+                new InitCmd(),  
+                new AddCmd()
+            };
+            return commands.Run(args);
         }
     }
 }

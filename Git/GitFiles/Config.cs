@@ -8,17 +8,16 @@ namespace gsi
 {
     class Config
     {
-        private string FullPath;
-        private Dictionary<(string,string),Dictionary<string,string>> Content;
-        public Config(string full_path, bool read=false)
+        private string ConfigPath;
+        private Dictionary<(string,string),Dictionary<string,string>> Content = new Dictionary<(string, string), Dictionary<string, string>>();
+        public Config(string full_path)
         {
-            FullPath=full_path;
-            if (read) ReadFile();
+            ConfigPath=full_path;
         }
-        public void ReadFile()
+        public void ReadConfig()
         {
             // { "remote": {} } ??
-            Content = File.ReadAllText(FullPath).Split("[")
+            Content = File.ReadAllText(ConfigPath).Split("[")
                         .Select(s => s.Trim())
                         .Where(s => s != string.Empty)
                         .Aggregate
@@ -40,9 +39,9 @@ namespace gsi
                             } 
                         );
         }
-        public void WriteFile()
+        public void WriteConfig()
         {  
-            using(var fd=new StreamWriter(FullPath))
+            using(var fd=new StreamWriter(ConfigPath))
             {
                 foreach ((string section, string subsection) in Content.Keys)
                 {
@@ -61,17 +60,20 @@ namespace gsi
         {
             if (IsBare()) throw new Exception("repo is bare");
         }
+        public bool Contains(string section, string subsection, string option=null)
+        {
+            bool b = Content.ContainsKey((section,subsection));
+            if (option==null || !b) return b;
+            return Content[(section,subsection)].ContainsKey(option); 
+        }
         public string GetOptionValue(string section, string subsection, string option)
         {
-            if (!Content.ContainsKey((section,subsection)))
-                return null;
-            if (!Content[(section,subsection)].ContainsKey(option))
-                return null;
+            if (!Contains(section,subsection,option)) return null;
             return Content[(section,subsection)][option];
         }
         public void SetOptionValue(string section, string subsection, string option, string value)
         {
-            if (!Content.ContainsKey((section,subsection)))
+            if (!Contains(section,subsection))
                 Content[(section,subsection)]=new Dictionary<string, string>();
             Content[(section,subsection)][option]=value;
         }
