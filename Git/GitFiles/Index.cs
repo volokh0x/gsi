@@ -75,19 +75,19 @@ namespace gsi
             {
                 var ie = new IndexEntry
                 {
-                    ctime_s=StructConverter.UnPackInt32(data, i+0),
-                    ctime_n=StructConverter.UnPackInt32(data, i+4),
-                    mtime_s=StructConverter.UnPackInt32(data, i+8),
-                    mtime_n=StructConverter.UnPackInt32(data, i+12),
-                    dev=StructConverter.UnPackInt32(data, i+16),
-                    ino=StructConverter.UnPackInt32(data, i+20),
-                    mode=StructConverter.UnPackInt32(data, i+24),
-                    uid=StructConverter.UnPackInt32(data, i+28),
-                    gid=StructConverter.UnPackInt32(data, i+32),
-                    size=StructConverter.UnPackInt32(data, i+36),
-                    hash=StructConverter.UnPackHash(data, i+40),
-                    flags=StructConverter.UnPackInt16(data, i+60),
-                    path=StructConverter.UnPackStr(data, i+62, Array.IndexOf(data, (byte)0, i+62)-i-62)
+                    ctime_s=StructConverter.UnPackInt32(entry_data, i+0),
+                    ctime_n=StructConverter.UnPackInt32(entry_data, i+4),
+                    mtime_s=StructConverter.UnPackInt32(entry_data, i+8),
+                    mtime_n=StructConverter.UnPackInt32(entry_data, i+12),
+                    dev=StructConverter.UnPackInt32(entry_data, i+16),
+                    ino=StructConverter.UnPackInt32(entry_data, i+20),
+                    mode=StructConverter.UnPackInt32(entry_data, i+24),
+                    uid=StructConverter.UnPackInt32(entry_data, i+28),
+                    gid=StructConverter.UnPackInt32(entry_data, i+32),
+                    size=StructConverter.UnPackInt32(entry_data, i+36),
+                    hash=StructConverter.UnPackHash(entry_data, i+40),
+                    flags=StructConverter.UnPackInt16(entry_data, i+60),
+                    path=StructConverter.UnPackStr(entry_data, i+62, Array.IndexOf(entry_data, (byte)0, i+62)-i-62)
                 };
                 Entries.Add(ie);
                 i+=((62 + ie.path.Length + 8) / 8) * 8;
@@ -101,10 +101,10 @@ namespace gsi
             Entries = Entries.OrderBy(ie => ie.path).ToList();
 
             // header part
-            res.AddRange(StructConverter.PackStr("DIRC"));
-            res.AddRange(StructConverter.PackInt32(2));
+            res.AddRange(StructConverter.PackStr(indh.signature));
+            res.AddRange(StructConverter.PackInt32(indh.version));
             res.AddRange(StructConverter.PackInt32(Entries.Count));
-
+            
             // entries part
             foreach(var ie in Entries)
             {

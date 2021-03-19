@@ -17,13 +17,13 @@ namespace gsi
         {
             byte[] dst=new byte[2];
             CopyBytes(src, start, dst, is_big_endian); 
-            return Convert.ToInt16(dst);
+            return BitConverter.ToInt16(dst);
         }
         public static int UnPackInt32(byte[] src, int start, bool is_big_endian=true)
         {
             byte[] dst=new byte[4];
             CopyBytes(src, start, dst, is_big_endian); 
-            return Convert.ToInt32(dst);
+            return BitConverter.ToInt32(dst);
         }
         public static string UnPackStr(byte[] src, int start, int count)
         {

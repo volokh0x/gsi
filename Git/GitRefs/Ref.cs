@@ -9,10 +9,11 @@ namespace gsi
         public string RefPath;
         public string Hash;
         public string Name;
-        public Ref(string path)
+        public Ref(string path, bool read_ref=false)
         {
             RefPath=path;
             Name=new Regex(".*refs/(.*)$").Match(path).Groups[1].Value;
+            if (read_ref) ReadRef();
         }
         public string ReadRef()
         {

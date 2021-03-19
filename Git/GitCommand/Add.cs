@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
-using Mono.Unix;
 
 namespace gsi
 {
@@ -18,8 +17,7 @@ namespace gsi
             gitfs.config.AssertNotBare();
             Directory.SetCurrentDirectory(gitfs.gitp.Root);
 
-            // multiple files, if dir then recursive
-            // gitfs.gitp.index.AddUserFile(fpath)  
+            // user files, if dir then recursive
             List<string> fpaths=new List<string>();
             foreach(var path in paths)
                 if (File.Exists(path))
@@ -35,13 +33,12 @@ namespace gsi
             }
             
             if (gitfs.index==null)
-            {
                 gitfs.index=new Index(gitfs.gitp.PathFromRoot("index"));
-            }
             foreach(var path in fpaths)
             {
-                (byte[] hashed_data, string hash)=Object.HashObject(File.ReadAllBytes(path), ObjectType.blob);
-                Object.WriteObject(hashed_data, ObjectType.blob, gitfs.gitp.PathFromHash(hash)); 
+                Blob blob=new Blob(path,true);
+                string hash = blob.HashBlob();
+                blob.WriteBlob(gitfs.gitp.PathFromHash(hash));
                 gitfs.index.AddEntry(gitfs.gitp.RelToRoot(path), hash);
             } 
             gitfs.index.WriteIndex();       

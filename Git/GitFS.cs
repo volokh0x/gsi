@@ -55,9 +55,6 @@ namespace gsi
             fpath=gitp.PathFromRoot("config");
             if (File.Exists(fpath))
                 config=new Config(fpath, true);
-                
-            // init refs
-            // ...
         }
         public GitFS()
         {

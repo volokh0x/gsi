@@ -5,9 +5,7 @@ using Mono.Options;
 namespace gsi
 {
     class CmdAdd: Command 
-	{
-		public List<string> Files;
-		
+	{	
 		public CmdAdd () : base ("add", "add files to staging area")
 		{
 			Options = new OptionSet () {
@@ -25,8 +23,7 @@ namespace gsi
                     Console.WriteLine("gsi add: aborted ...");
 					return 0;
                 }
-                Files=extra;
-				GitCommand.Add(Files);
+				GitCommand.Add(extra);
 				return 0;
 			}
 			catch (Exception e) {

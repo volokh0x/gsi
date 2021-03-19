@@ -14,15 +14,9 @@ namespace gsi
         commit,
         tag
     }
-    struct ObjectHeader
-    {
-        ObjectType objt;
-        int size;
-    }
     class Object
     {
         public string ObjectPath;
-        public ObjectHeader objh;   
         public static (byte[],ObjectType) ReadObject(string path)
         {
             (byte[] full_data, int fd_len)=DecompressFromFile(path);
