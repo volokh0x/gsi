@@ -44,5 +44,13 @@ namespace gsi
         {
             return Path.Combine(DirPath[dir],path);
         }
+        public string PathFromHash(string hash)
+        {
+            return Path.Combine(DirPath["objects"],hash.Substring(0,2),hash.Substring(2));
+        }
+        public string RelToRoot(string path)
+        {
+            return Path.GetRelativePath(Root,path);
+        }
     }
 }

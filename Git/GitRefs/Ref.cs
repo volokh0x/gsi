@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace gsi
 {
-    class Ref : IRef
+    class Ref
     {
         public string RefPath;
         public string Hash;
@@ -12,39 +12,17 @@ namespace gsi
         public Ref(string path)
         {
             RefPath=path;
-            Name=new Regex(".*(refs/.*)$").Match(path).Groups[1].Value;
+            Name=new Regex(".*refs/(.*)$").Match(path).Groups[1].Value;
         }
-        public void SetRef(string hash)
-        {
-            Hash=hash;
-            File.WriteAllText(RefPath, $"{hash}\n");
-        }
-        public Commit GetCommit()
-        {
-            return null;
-        }
-        public string GetCommitHash()
+        public string ReadRef()
         {
             Hash=Regex.Replace(File.ReadAllText(RefPath), @"\s+", string.Empty);
             return Hash;
         }
+        public void WriteRef(string hash)
+        {
+            Hash=hash;
+            File.WriteAllText(RefPath, $"{hash}\n");
+        }
     }
-    // class Ref : GitPathMember, IRef
-    // {
-    //     public Object GetObject()
-    //     {
-    //         string object_path=gitp.ObjectFullPath(GetHash());
-    //         (byte[] data, ObjectType objt)=Object.ReadObject(object_path);
-    //         switch(objt)
-    //         {
-    //             case ObjectType.blob:
-    //                 return new Blob(object_path, data);
-    //             case ObjectType.tree:
-    //                 return new Tree(object_path, data);
-    //             case ObjectType.commit:
-    //                 return new Commit(object_path, data);
-    //             default:
-    //                 return null;
-    //         }
-    //     }
 }

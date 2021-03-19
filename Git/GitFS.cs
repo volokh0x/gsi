@@ -37,15 +37,35 @@ namespace gsi
         public Dictionary<string,Object> Objects = new Dictionary<string, Object>();
         public Dictionary<string,Ref> Refs = new Dictionary<string, Ref>();
 
-        public GitFS(string cwdRelPath=null)
+        public GitFS(string cwdRelPath)
         {
-            if (cwdRelPath==null) cwdRelPath=Environment.CurrentDirectory;
+            // find root, if found then init paths
             (string root, bool is_bare)=GitFS.FindRoot(Path.GetFullPath(cwdRelPath));
             gitp=new GitPath(root,is_bare);
+
+            // inspect git
+            string fpath;
+            if (!gitp.ValidRoot()) return;
+            fpath=gitp.PathFromRoot("HEAD");
+            if (File.Exists(fpath))
+                head=new Head(fpath, true);
+            fpath=gitp.PathFromRoot("index");
+            if (File.Exists(fpath))
+                index=new Index(fpath, true);
+            fpath=gitp.PathFromRoot("config");
+            if (File.Exists(fpath))
+                config=new Config(fpath, true);
+                
+            // init refs
+            // ...
         }
-        public GitFS(GitPath gp)
+        public GitFS()
         {
-            gitp=gp;
+            // left blank
+        }
+        public void Inspect()
+        {
+
         }
     }
 }

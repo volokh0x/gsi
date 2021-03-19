@@ -10,9 +10,10 @@ namespace gsi
     {
         private string ConfigPath;
         private Dictionary<(string,string),Dictionary<string,string>> Content = new Dictionary<(string, string), Dictionary<string, string>>();
-        public Config(string full_path)
+        public Config(string path, bool read_config=false)
         {
-            ConfigPath=full_path;
+            ConfigPath=path;
+            if (read_config) ReadConfig();
         }
         public void ReadConfig()
         {

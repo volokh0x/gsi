@@ -132,8 +132,34 @@ namespace gsi
             // write to a file
             File.WriteAllBytes(IndexPath, res.ToArray());
         }
+        public void AddEntry(string path, string hash)
+        {
+            Entries.RemoveAll(ie=>ie.path==path);
+            
+            short len=(short)Encoding.UTF8.GetBytes(path).Length;
+            short flags=(short)(len&0b0000_111111111111);
 
+            UnixFileInfo unixFileInfo = new UnixFileInfo(path);
+            int tt = StructConverter.TimeStamp(new FileInfo(path).LastWriteTimeUtc);
+            int mode = ((int)unixFileInfo.Protection)|((int)unixFileInfo.FileAccessPermissions);
 
-        
+            var ie = new IndexEntry
+            {
+                ctime_n=tt,
+                ctime_s=0,
+                mtime_n=tt,
+                mtime_s=0,
+                dev=(int)unixFileInfo.DeviceType,
+                ino=(int)unixFileInfo.Inode,
+                mode=mode,
+                uid=(int)unixFileInfo.OwnerUserId,
+                gid=(int)unixFileInfo.OwnerGroupId,
+                size=(int)unixFileInfo.Length,
+                hash=hash,
+                flags=flags,
+                path=path
+            };
+            Entries.Add(ie);
+        }
     }
 }

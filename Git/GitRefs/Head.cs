@@ -1,50 +1,45 @@
 using System;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace gsi
 {
-    class Head : IRef
+    class Head 
     {
-        string HeadPath;
-        string Hash;
-        string Content;
-        public Head(string path)
+        public string HeadPath;
+        public bool ToBranch;
+        public string Content;
+        
+        public Head(string path, bool read_head=false)
         {
             HeadPath=path;
-        } 
-        public Head(string path, string hash)
-        {
-            HeadPath=path;
-            SetHead(hash);
+            if (read_head) ReadHead();
         }
-        public Head(string path, Ref iref)
+        public void ReadHead()
         {
-            HeadPath=path;
-            SetHead(iref);
+            string content = Regex.Replace(File.ReadAllText(HeadPath), @"\s+", string.Empty);
+            if (content.StartsWith("ref:"))
+            {
+                ToBranch=true;
+                Content=new Regex(".*refs/(.*)$").Match(content).Groups[1].Value;
+            }
+            else
+            {
+                ToBranch=false;
+                Content=content;
+            }
         }
         public void SetHead(string hash)
         {
-            Hash=hash;
-            Content=$"{hash}\n";
+            ToBranch=false;
+            Content=hash;
+            File.WriteAllText(HeadPath, $"{hash}\n");
         }
         public void SetHead(Ref iref)
         {
-            Content=$"ref: {iref.Name}\n";
-        }
-        public void WriteHead()
-        {
-            File.WriteAllText(HeadPath,Content);
-        }
-        public Commit GetCommit()
-        {
-            return null;
-        }
-        public string GetCommitHash()
-        {
-            // read from file !!!
-            // Hash=Regex.Replace(File.ReadAllText(RefPath), @"\s+", string.Empty);
-            // return Hash;
-            return null;
+            ToBranch=true;
+            Content=iref.Name;
+            File.WriteAllText(HeadPath, $"ref: refs/{iref.Name}\n");
         }
     }
 }

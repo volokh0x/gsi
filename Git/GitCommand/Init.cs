@@ -16,7 +16,8 @@ namespace gsi
                 return;
             }
 
-            gitfs=new GitFS(new GitPath(root_path, bare));
+            gitfs=new GitFS();
+            gitfs.gitp=new GitPath(root_path, bare);
             Directory.SetCurrentDirectory(gitfs.gitp.Root);
 
             gitfs.config=new Config(gitfs.gitp.PathFromRoot("config"));
@@ -24,8 +25,8 @@ namespace gsi
             gitfs.config.WriteConfig();
 
             gitfs.Refs["heads/master"]=new Ref(gitfs.gitp.PathFromDir("heads","master"));
-            gitfs.head=new Head(gitfs.gitp.PathFromRoot("HEAD"), gitfs.Refs["heads/master"]);
-            gitfs.head.WriteHead(); 
+            gitfs.head=new Head(gitfs.gitp.PathFromRoot("HEAD"));
+            gitfs.head.SetHead(gitfs.Refs["heads/master"]);
             Console.WriteLine($"initialized empty repository: {gitfs.gitp.Root}");
         }
     }

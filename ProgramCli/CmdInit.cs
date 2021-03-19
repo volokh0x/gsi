@@ -4,13 +4,13 @@ using Mono.Options;
 
 namespace gsi
 {
-    class InitCmd: Command 
+    class CmdInit: Command 
 	{
 		public string Path;
 		public bool IsBare;
 		public bool ShowHelp;
 		
-		public InitCmd () : base ("init", "init some repo")
+		public CmdInit () : base ("init", "init some repo")
 		{
 			Options = new OptionSet () {
 				"usage: gsi init [dir] [OPTIONS]",
@@ -37,7 +37,7 @@ namespace gsi
 					Path=extra[0];
 				else 
 				{
-					Console.Error.WriteLine ("gsi init: to many arguments");
+					Console.Error.WriteLine("gsi init: to many arguments");
 					return 1;
 				}
 				GitCommand.Init(Path,IsBare);

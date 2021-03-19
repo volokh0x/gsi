@@ -50,16 +50,14 @@ namespace gsi
             
             return (full_data, StructConverter.HashBToS(SHA1.Create().ComputeHash(full_data)));
         }
-        public static string WriteObject(byte[] data, ObjectType objt, string path)
+        public static void WriteObject(byte[] data, ObjectType objt, string path)
         {
-            (byte[] full_data,string hash) = HashObject(data,objt);
             if (!File.Exists(path))
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(path));;   
-                CompressToFile(path, full_data);   
+                CompressToFile(path, data);   
                 File.SetAttributes(path, FileAttributes.ReadOnly);
             }
-            return hash;
         }
         public static (byte[], int) DecompressFromFile(string path) 
         {

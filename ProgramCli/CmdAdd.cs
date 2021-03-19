@@ -4,11 +4,11 @@ using Mono.Options;
 
 namespace gsi
 {
-    class AddCmd: Command 
+    class CmdAdd: Command 
 	{
 		public List<string> Files;
 		
-		public AddCmd () : base ("add", "add files to staging area")
+		public CmdAdd () : base ("add", "add files to staging area")
 		{
 			Options = new OptionSet () {
 				"usage: gsi add [files]",
@@ -21,8 +21,8 @@ namespace gsi
 				var extra = Options.Parse (args);
 				if (extra.Count==0)
                 {
-                    Console.WriteLine ("gsi add: nothing to add");
-                    Console.WriteLine ("gsi add: aborted ...");
+                    Console.WriteLine("gsi add: nothing to add");
+                    Console.WriteLine("gsi add: aborted ...");
 					return 0;
                 }
                 Files=extra;
@@ -30,7 +30,7 @@ namespace gsi
 				return 0;
 			}
 			catch (Exception e) {
-				Console.Error.WriteLine ($"gsi init: {e.ToString()}"); // e.Message
+				Console.Error.WriteLine ($"gsi add: {e.ToString()}"); // e.Message
 				return 1;
 			}
 		}

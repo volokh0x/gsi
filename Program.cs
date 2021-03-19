@@ -17,8 +17,8 @@ namespace gsi
         {
             var commands = new CommandSet ("gsi") {
                 "usage: gsi COMMAND [OPTIONS]+",
-                new InitCmd(),  
-                new AddCmd()
+                new CmdInit(),  
+                new CmdAdd()
             };
             return commands.Run(args);
         }
