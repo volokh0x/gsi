@@ -48,6 +48,10 @@ namespace gsi
         {
             return Path.Combine(DirPath["objects"],hash.Substring(0,2),hash.Substring(2));
         }
+        public string HashFromPath(string path)
+        {
+            return Path.GetRelativePath(DirPath["objects"],path).Replace($"{Path.PathSeparator}","");
+        }
         public string RelToRoot(string path)
         {
             return Path.GetRelativePath(Root,path);

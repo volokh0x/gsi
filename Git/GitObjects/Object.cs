@@ -16,7 +16,10 @@ namespace gsi
     }
     class Object
     {
-        public string ObjectPath;
+        protected GitFS gitfs;
+        public string Hash;
+        public string OPath {get => gitfs.gitp.PathFromHash(Hash);}
+
         public static (byte[],ObjectType) ReadObject(string path)
         {
             (byte[] full_data, int fd_len)=DecompressFromFile(path);

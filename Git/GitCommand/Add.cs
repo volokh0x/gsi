@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace gsi
 {
-    static partial class GitCommand 
+    partial class GitCommand 
     {
         public static void Add(List<string> paths)
         {
@@ -36,9 +36,9 @@ namespace gsi
                 gitfs.index=new Index(gitfs.gitp.PathFromRoot("index"));
             foreach(var path in fpaths)
             {
-                Blob blob=new Blob(path,true);
+                Blob blob=new Blob(gitfs,path,true);
                 string hash = blob.HashBlob();
-                blob.WriteBlob(gitfs.gitp.PathFromHash(hash));
+                blob.WriteBlob(false);
                 gitfs.index.AddEntry(gitfs.gitp.RelToRoot(path), hash);
             } 
             gitfs.index.WriteIndex();       

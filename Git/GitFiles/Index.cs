@@ -32,9 +32,9 @@ namespace gsi
     }
     class Index 
     {
-        string IndexPath; 
-        IndexHeader indh;
-        List<IndexEntry> Entries = new List<IndexEntry>();
+        public string IndexPath; 
+        public IndexHeader indh;
+        public List<IndexEntry> Entries = new List<IndexEntry>();
         public Index(string path, bool read_index=false)
         {
             IndexPath=path;
@@ -101,8 +101,8 @@ namespace gsi
             Entries = Entries.OrderBy(ie => ie.path).ToList();
 
             // header part
-            res.AddRange(StructConverter.PackStr(indh.signature));
-            res.AddRange(StructConverter.PackInt32(indh.version));
+            res.AddRange(StructConverter.PackStr("DIRC"));
+            res.AddRange(StructConverter.PackInt32(2));
             res.AddRange(StructConverter.PackInt32(Entries.Count));
             
             // entries part
@@ -160,6 +160,7 @@ namespace gsi
                 path=path
             };
             Entries.Add(ie);
+            Entries = Entries.OrderBy(ie => ie.path).ToList();
         }
     }
 }
