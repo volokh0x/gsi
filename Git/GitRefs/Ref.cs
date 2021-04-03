@@ -6,24 +6,32 @@ namespace gsi
 {
     class Ref
     {
-        public string RefPath;
+        private GitFS gitfs;
+        public string Name; 
+        public string RPath {get => gitfs.gitp.PathFromDir("refs", Name);}
         public string Hash;
-        public string Name;
-        public Ref(string path, bool read_ref=false)
+
+        public Ref(GitFS gitfs, string Name, bool read_ref=true)
         {
-            RefPath=path;
-            Name=new Regex(".*refs/(.*)$").Match(path).Groups[1].Value;
+            this.gitfs=gitfs;
+            this.Name=Name;
             if (read_ref) ReadRef();
         }
         public string ReadRef()
         {
-            Hash=Regex.Replace(File.ReadAllText(RefPath), @"\s+", string.Empty);
+            Hash=Regex.Replace(File.ReadAllText(RPath), @"\s+", string.Empty);
             return Hash;
         }
-        public void WriteRef(string hash)
+        public void SetRef(string hash)
         {
             Hash=hash;
-            File.WriteAllText(RefPath, $"{hash}\n");
+            WriteRef(false);
+        }
+        public void WriteRef(bool read_ref=true)
+        {
+            if (read_ref || Hash==null)
+                ReadRef();
+            File.WriteAllText(RPath, $"{Hash}\n");
         }
     }
 }

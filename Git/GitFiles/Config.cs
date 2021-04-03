@@ -6,11 +6,29 @@ using System.Text.RegularExpressions;
 
 namespace gsi
 {
+    class ConfigSet
+    {
+        public Config config_pr;
+        public Config config_usr;
+        public Config config_glbl;
+        
+        public string GetOptionValue(string section, string subsection, string option)
+        {
+            if (config_pr!=null && config_pr.GetOptionValue(section,subsection,option)!=null)
+                return config_pr.GetOptionValue(section,subsection,option);
+            if (config_usr!=null && config_usr.GetOptionValue(section,subsection,option)!=null)
+                return config_usr.GetOptionValue(section,subsection,option);
+            if (config_glbl!=null && config_glbl.GetOptionValue(section,subsection,option)!=null)
+                return config_glbl.GetOptionValue(section,subsection,option);
+            return null;
+        }
+    }
     class Config
     {
-        private string ConfigPath;
+        public string ConfigPath {get;}
+        public bool IsBare {get => mIsBare();}
         private Dictionary<(string,string),Dictionary<string,string>> Content = new Dictionary<(string, string), Dictionary<string, string>>();
-        public Config(string path, bool read_config=false)
+        public Config(string path, bool read_config=true)
         {
             ConfigPath=path;
             if (read_config) ReadConfig();
@@ -53,13 +71,9 @@ namespace gsi
                 }
             }
         }
-        public bool IsBare()
-        {
-            return GetOptionValue("core",null,"bare")=="true";
-        }
         public void AssertNotBare()
         {
-            if (IsBare()) throw new Exception("repo is bare");
+            if (IsBare) throw new Exception("repo is bare");
         }
         public bool Contains(string section, string subsection, string option=null)
         {
@@ -87,6 +101,10 @@ namespace gsi
                 foreach((string option,string value) in Content[(section,subsection)])
                         Console.WriteLine($"\t{option} = {value}");  
             }
+        }
+        private bool mIsBare()
+        {
+            return GetOptionValue("core",null,"bare")=="true";
         }
     }
 }

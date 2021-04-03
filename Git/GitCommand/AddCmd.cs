@@ -7,14 +7,14 @@ namespace gsi
 {
     partial class GitCommand 
     {
-        public static void Add(List<string> paths)
+        public static void AddCmd(List<string> paths)
         {
             paths=paths.Select(path => Path.GetFullPath(path)).ToList();
             
             // valid non-bare repo
             GitFS gitfs=new GitFS(Environment.CurrentDirectory);
             gitfs.gitp.AssertValidRoot();
-            gitfs.config.AssertNotBare();
+            if (gitfs.config_set.config_pr!=null) gitfs.config_set.config_pr.AssertNotBare();
             Directory.SetCurrentDirectory(gitfs.gitp.Root);
 
             // user files, if dir then recursive
@@ -33,7 +33,7 @@ namespace gsi
             }
             
             if (gitfs.index==null)
-                gitfs.index=new Index(gitfs.gitp.PathFromRoot("index"));
+                gitfs.index=new Index(gitfs.gitp.PathFromRoot("index"),false);
             foreach(var path in fpaths)
             {
                 Blob blob=new Blob(gitfs,path,true);

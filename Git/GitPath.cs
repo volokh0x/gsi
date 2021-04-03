@@ -50,7 +50,7 @@ namespace gsi
         }
         public string HashFromPath(string path)
         {
-            return Path.GetRelativePath(DirPath["objects"],path).Replace($"{Path.PathSeparator}","");
+            return Path.GetRelativePath(DirPath["objects"],path).Replace($"{Path.DirectorySeparatorChar}","");
         }
         public string RelToRoot(string path)
         {

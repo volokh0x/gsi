@@ -4,19 +4,20 @@ using Mono.Options;
 
 namespace gsi
 {
-    class CmdCommit: Command 
+    class InitCli: Command 
 	{
-		public string Message;		
-        public bool ShowHelp;
+		public string Path;
+		public bool IsBare;
+		public bool ShowHelp;
 		
-		public CmdCommit () : base ("commit", "commit changes")
+		public InitCli () : base ("init", "init some repo")
 		{
 			Options = new OptionSet () {
-				"usage: gsi commit [OPTIONS]",
+				"usage: gsi init [dir] [OPTIONS]",
 				"",
-				{ "message|m=",
-				"message",
-				m => Message = m},
+				{ "bare|b",
+				"create a bare repo",
+				b => IsBare = b != null },
 				{"help|h|?",
 				"get help",
 				v => ShowHelp = v != null },
@@ -32,7 +33,16 @@ namespace gsi
 					Options.WriteOptionDescriptions(CommandSet.Out);
 					return 0;
 				}
-				GitCommand.Commit(Message);
+				if (extra.Count==0)
+					Path=Environment.CurrentDirectory;
+				else if (extra.Count==1)
+					Path=extra[0];
+				else 
+				{
+					Console.Error.WriteLine("gsi init: to many arguments");
+					return 1;
+				}
+				GitCommand.InitCmd(Path,IsBare);
 				return 0;
 			}
 			catch (Exception e) 

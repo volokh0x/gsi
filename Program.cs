@@ -17,16 +17,11 @@ namespace gsi
         {
             var commands = new CommandSet ("gsi") {
                 "usage: gsi COMMAND [OPTIONS]+",
-                new CmdInit(),  
-                new CmdAdd(),
-                new CmdCommit()
+                new InitCli(),  
+                new AddCli(),
+                new CommitCli()
             };
             return commands.Run(args);
-        }
-        static void MainX()
-        {
-            Console.WriteLine(Path.DirectorySeparatorChar);
-            Console.WriteLine("dir2/b".Contains(Path.DirectorySeparatorChar));
         }
     }
 }

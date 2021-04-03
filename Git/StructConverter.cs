@@ -80,5 +80,13 @@ namespace gsi
             var diff = dt.ToUniversalTime() - new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
             return Convert.ToInt32(Math.Floor(diff.TotalSeconds));
         }
+        public static int UTC_Offset()
+        {
+            return Convert.ToInt32(Math.Floor(TimeZoneInfo.Local.BaseUtcOffset.TotalSeconds));
+        }
+        public static string UTC_OffsetToStr(int utc_offset)
+        {
+            return $"{(utc_offset>0?"+":"-")}{(Math.Abs(utc_offset)/3600).ToString("D2")}{((Math.Abs(utc_offset)/60)%60).ToString("D2")}";
+        }
     }
 }

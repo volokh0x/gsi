@@ -30,12 +30,24 @@ namespace gsi
         public short flags;
         public string path;
     }
+    enum Stage
+    {
+        NONCONFL,
+        BASE,
+        RECEIVER,
+        GIVER
+    }
     class Index 
     {
-        public string IndexPath; 
+        public static Stage StageFromFlags(short flags)
+        {
+            return (Stage)(flags>>12);
+        }
+        
+        public string IndexPath {get;}
         public IndexHeader indh;
         public List<IndexEntry> Entries = new List<IndexEntry>();
-        public Index(string path, bool read_index=false)
+        public Index(string path, bool read_index=true)
         {
             IndexPath=path;
             if (read_index) ReadIndex();
@@ -161,6 +173,14 @@ namespace gsi
             };
             Entries.Add(ie);
             Entries = Entries.OrderBy(ie => ie.path).ToList();
+        }
+        public List<IndexEntry> ConfilctingEntries()
+        {
+            List<IndexEntry> L = new List<IndexEntry>();
+            foreach(var ie in Entries)
+                if (Index.StageFromFlags(ie.flags)==Stage.RECEIVER)
+                    L.Add(ie);
+            return L;
         }
     }
 }

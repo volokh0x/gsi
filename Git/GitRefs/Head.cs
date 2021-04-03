@@ -6,18 +6,20 @@ namespace gsi
 {
     class Head 
     {
-        public string HeadPath;
+        private GitFS gitfs;
+        public string HPath{get=>gitfs.gitp.PathFromRoot("HEAD");}
         public bool ToBranch;
         public string Content;
+        public string Hash{get=>GetHash();}
         
-        public Head(string path, bool read_head=false)
+        public Head(GitFS gitfs, bool read_head=true)
         {
-            HeadPath=path;
+            this.gitfs=gitfs;
             if (read_head) ReadHead();
         }
         public void ReadHead()
         {
-            string content = Regex.Replace(File.ReadAllText(HeadPath), @"\s+", string.Empty);
+            string content = Regex.Replace(File.ReadAllText(HPath), @"\s+", string.Empty);
             if (content.StartsWith("ref:"))
             {
                 ToBranch=true;
@@ -29,17 +31,34 @@ namespace gsi
                 Content=content;
             }
         }
-        public void SetHead(string hash)
+        public void SetHead(string hash, bool effect_branch=true)
         {
-            ToBranch=false;
-            Content=hash;
-            File.WriteAllText(HeadPath, $"{hash}\n");
+            if (effect_branch)
+            {
+                if (!ToBranch) 
+                    throw new Exception("not pointing at any branch");
+                gitfs.Refs[Content].SetRef(hash);
+            }
+            else
+            {
+                ToBranch=false;
+                Content=hash;
+                File.WriteAllText(HPath, $"{hash}\n");
+            }
         }
         public void SetHead(Ref iref)
         {
             ToBranch=true;
             Content=iref.Name;
-            File.WriteAllText(HeadPath, $"ref: refs/{iref.Name}\n");
+            File.WriteAllText(HPath, $"ref: refs/{iref.Name}\n");
+        }
+        private string GetHash()
+        {
+            if (ToBranch)
+                if (gitfs.Refs.ContainsKey(Content)) return gitfs.Refs[Content].Hash;
+                else return null;
+            else
+                return Content;
         }
     }
 }
