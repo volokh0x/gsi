@@ -71,6 +71,13 @@ namespace gsi
             if (File.Exists(fpath))
                 config_set.config_glbl=new Config(fpath);
             
+            // init all exisitng refs in repo
+            foreach (var reff in Directory.GetFiles(gitp.DirPath["tags"]))
+            {
+                string fname = Path.GetFileName(reff);
+                string ref_name = $"tags/{fname}";
+                Refs[ref_name ]=new Ref(this, ref_name);
+            }
             bool master_found=false;
             foreach (var reff in Directory.GetFiles(gitp.DirPath["heads"]))
             {
@@ -79,9 +86,8 @@ namespace gsi
                 Refs[ref_name ]=new Ref(this, ref_name);
                 if (fname=="master") master_found=true;
             }
-            if (!master_found) Refs["heads/master"]=new Ref(this,"heads/master",false);
-                
-
+            if (!master_found) 
+                Refs["heads/master"]=new Ref(this,"heads/master",false);
         }
         public GitFS()
         {

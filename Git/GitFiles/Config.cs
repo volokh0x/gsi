@@ -27,7 +27,9 @@ namespace gsi
     {
         public string ConfigPath {get;}
         public bool IsBare {get => mIsBare();}
-        private Dictionary<(string,string),Dictionary<string,string>> Content = new Dictionary<(string, string), Dictionary<string, string>>();
+        private Dictionary<(string,string),Dictionary<string,string>> Content 
+            = new Dictionary<(string, string), Dictionary<string, string>>();
+
         public Config(string path, bool read_config=true)
         {
             ConfigPath=path;
@@ -75,7 +77,7 @@ namespace gsi
         {
             if (IsBare) throw new Exception("repo is bare");
         }
-        public bool Contains(string section, string subsection, string option=null)
+        private bool Contains(string section, string subsection, string option=null)
         {
             bool b = Content.ContainsKey((section,subsection));
             if (option==null || !b) return b;
@@ -92,6 +94,10 @@ namespace gsi
                 Content[(section,subsection)]=new Dictionary<string, string>();
             Content[(section,subsection)][option]=value;
         }
+        private bool mIsBare()
+        {
+            return GetOptionValue("core",null,"bare")=="true";
+        }
         public void Print()
         {
             foreach ((string section,string subsection) in Content.Keys)
@@ -101,10 +107,6 @@ namespace gsi
                 foreach((string option,string value) in Content[(section,subsection)])
                         Console.WriteLine($"\t{option} = {value}");  
             }
-        }
-        private bool mIsBare()
-        {
-            return GetOptionValue("core",null,"bare")=="true";
         }
     }
 }

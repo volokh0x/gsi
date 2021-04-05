@@ -25,12 +25,6 @@ namespace gsi
         public void SetRef(string hash)
         {
             Hash=hash;
-            WriteRef(false);
-        }
-        public void WriteRef(bool read_ref=true)
-        {
-            if (read_ref || Hash==null)
-                ReadRef();
             File.WriteAllText(RPath, $"{Hash}\n");
         }
     }

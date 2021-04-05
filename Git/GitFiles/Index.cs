@@ -41,7 +41,7 @@ namespace gsi
     {
         public static Stage StageFromFlags(short flags)
         {
-            return (Stage)(flags>>12);
+            return (Stage)((flags>>12)&0b11);
         }
         
         public string IndexPath {get;}
@@ -174,7 +174,7 @@ namespace gsi
             Entries.Add(ie);
             Entries = Entries.OrderBy(ie => ie.path).ToList();
         }
-        public List<IndexEntry> ConfilctingEntries()
+        public List<IndexEntry> GetConfilctingEntries()
         {
             List<IndexEntry> L = new List<IndexEntry>();
             foreach(var ie in Entries)

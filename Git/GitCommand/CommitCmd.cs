@@ -20,12 +20,12 @@ namespace gsi
                 throw new Exception("index file does not exist");
             
             string tree_hash = Tree.WriteTreeGraph(gitfs);
-            string head_desc=gitfs.head.ToBranch?gitfs.head.Content:"detached HEAD";
+            string head_desc=gitfs.head.IsDetached?"detached HEAD":gitfs.head.Content;
 
             if (tree_hash==gitfs.head.Hash)
                 throw new Exception($"On {head_desc} nothing to commit, working directory clean");
 
-            var ies=gitfs.index.ConfilctingEntries();
+            var ies=gitfs.index.GetConfilctingEntries();
             if (gitfs.merge_head!=null && ies.Count>0)
                 throw new Exception($"{string.Join("\n",ies.Select(ie=>ie.path))}\ncannot commit because you have unmerged files\n");
 

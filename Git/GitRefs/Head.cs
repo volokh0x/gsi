@@ -8,7 +8,7 @@ namespace gsi
     {
         private GitFS gitfs;
         public string HPath{get=>gitfs.gitp.PathFromRoot("HEAD");}
-        public bool ToBranch;
+        public bool IsDetached;
         public string Content;
         public string Hash{get=>GetHash();}
         
@@ -22,40 +22,41 @@ namespace gsi
             string content = Regex.Replace(File.ReadAllText(HPath), @"\s+", string.Empty);
             if (content.StartsWith("ref:"))
             {
-                ToBranch=true;
+                IsDetached=false;
                 Content=new Regex(".*refs/(.*)$").Match(content).Groups[1].Value;
             }
             else
             {
-                ToBranch=false;
+                IsDetached=true;
                 Content=content;
             }
         }
-        public void SetHead(string hash, bool effect_branch=true)
+        public void SetHead(string hash, bool to_detached=false)
         {
-            if (effect_branch)
+            if (!to_detached)
             {
-                if (!ToBranch) 
+                if (IsDetached) 
                     throw new Exception("not pointing at any branch");
                 gitfs.Refs[Content].SetRef(hash);
             }
             else
             {
-                ToBranch=false;
+                IsDetached=true;
                 Content=hash;
                 File.WriteAllText(HPath, $"{hash}\n");
             }
         }
         public void SetHead(Ref iref)
         {
-            ToBranch=true;
+            IsDetached=false;
             Content=iref.Name;
             File.WriteAllText(HPath, $"ref: refs/{iref.Name}\n");
         }
         private string GetHash()
         {
-            if (ToBranch)
-                if (gitfs.Refs.ContainsKey(Content)) return gitfs.Refs[Content].Hash;
+            if (!IsDetached)
+                if (gitfs.Refs.ContainsKey(Content)) 
+                    return gitfs.Refs[Content].Hash;
                 else return null;
             else
                 return Content;

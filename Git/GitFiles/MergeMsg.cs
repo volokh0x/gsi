@@ -19,9 +19,9 @@ namespace gsi
         {
             Content=File.ReadAllText(MPath);
         }
-        public void WriteMergeMsg(string content=null)
+        public void SetMergeMsg(string content)
         {
-            if (content!=null) Content=content;
+            Content=content;
             File.WriteAllText(MPath, Content);
         }
         public void Delete()

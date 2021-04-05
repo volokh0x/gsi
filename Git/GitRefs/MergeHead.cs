@@ -20,7 +20,7 @@ namespace gsi
             Hash=Regex.Replace(File.ReadAllText(MPath), @"\s+", string.Empty);
             return Hash;
         }
-        public void WriteMergeHead(string hash)
+        public void SetMergeHead(string hash)
         {
             Hash=hash;
             File.WriteAllText(MPath, $"{hash}\n");

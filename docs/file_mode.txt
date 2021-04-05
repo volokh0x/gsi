@@ -1,44 +1,28 @@
-32-bit mode, split into (high to low bits)
+=====================================================================
+mode (32 bits):
+  -low 16 bits
+  -high 16 bits
 
-4-bit object type
-  valid values in binary are 1000 (regular file), 1010 (symbolic link)
-  and 1110 (gitlink)
+low:
+4-bit type
+  valid values in binary are 1000 (regular file), 0100 (folders),
+  1010 (symbolic link) and 1110 (gitlink)
 
 3-bit unused
 
-9-bit unix permission. Only 0755 and 0644 are valid for regular files.
-Symbolic links and gitlinks have value 0 in this fiel
-
-directories are represented using object type 0100
+9-bit permission. 
+  Only 0755 and 0644 are valid for regular files. 
+  Symbolic links and gitlinks have value 0 in this fiel
 
 
 Type|---|Perm bits
+1000 000 110 100 100
+1 0   0   6   4   4 
 
-1000 000 1110101101
-1 0   0   7  5  5
-
-1000 000 110100100
-1 0   0   6  4  4
-
-
->>> m="040000"
->>> x=int(m, 8)
->>> x
-16384
->>> stat.S_ISDIR(x)
-True
->>> 
-
-040xxx
-
-0 100 000 yyy yyy yyy
-
-x=int(m, 8)
-x>>12 == 4
+for folders permissions dont matter
+0100 000 xxx xxx xxx  =>  040xxx
 
 
-m="040000"
-x=16384
 =====================================================================
 git changes file mode permissions in index (-wx for group and others)
 b:     1000000110100100
@@ -46,13 +30,12 @@ a.txt: 1000000110110100
 =====================================================================
 index entry flags
 
-0000 000000001001
 1-bit assume-valid flag (false)
 1-bit extended flag (must be zero in version 2)
 2-bit stage (0-unconflicted,1-base,2-receiver,3-giver)
 12-bit name length if the length is less than 0xFFF, otherwise 0xFFF is stored in this field. The value is 9 in decimal, or 0x9
 
-flags=len&0b0000_111111111111
-
+00 00 000000001001
+=====================================================================
 
 
