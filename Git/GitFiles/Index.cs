@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
@@ -44,12 +45,13 @@ namespace gsi
             return (Stage)((flags>>12)&0b11);
         }
         
-        public string IndexPath {get;}
+        private GitFS gitfs;
+        public string IndexPath {get => gitfs.gitp.PathFromRoot("index");}
         public IndexHeader indh;
         public List<IndexEntry> Entries = new List<IndexEntry>();
-        public Index(string path, bool read_index=true)
+        public Index(GitFS gitfs, bool read_index=true)
         {
-            IndexPath=path;
+            this.gitfs=gitfs;
             if (read_index) ReadIndex();
         }
         public void ReadIndex()  
@@ -174,13 +176,45 @@ namespace gsi
             Entries.Add(ie);
             Entries = Entries.OrderBy(ie => ie.path).ToList();
         }
+        public void DelEntry(string path)
+        {
+            Entries.RemoveAll(ie=>ie.path==path);
+        }
         public List<IndexEntry> GetConfilctingEntries()
         {
-            List<IndexEntry> L = new List<IndexEntry>();
-            foreach(var ie in Entries)
-                if (Index.StageFromFlags(ie.flags)==Stage.RECEIVER)
-                    L.Add(ie);
-            return L;
+            return Entries.Where(ie=>Index.StageFromFlags(ie.flags)==Stage.RECEIVER).ToList();
         }
+        public List<IndexEntry> GetMatchingEntries(string ppattern)
+        {
+            return Entries.Where(ie=>Regex.IsMatch(ie.path,$"^{ppattern}")).ToList();
+        }
+        public (List<string>, List<string>, List<string>) GetStatus()
+        {
+            var dirInfo = new DirectoryInfo(gitfs.gitp.Root);
+            var hiddenFolders = dirInfo.GetDirectories("*", SearchOption.AllDirectories)
+                .Where(d => (d.Attributes & FileAttributes.Hidden) != 0)
+                .Select(d => d.FullName);
+
+            var fs_paths = dirInfo.GetFiles("*.*", SearchOption.AllDirectories)
+                .Where(f => (f.Attributes & FileAttributes.Hidden) == 0 && 
+                    !hiddenFolders.Any(d => f.FullName.StartsWith(d))).Select(x => x.FullName)
+                   .ToList();
+            fs_paths=fs_paths.Select(path=>gitfs.gitp.RelToRoot(path)).ToList();
+
+            var path_to_ie = Entries.ToDictionary(ie=>ie.path);
+            List<string> ie_paths = new List<string>(Entries.Select(ie => ie.path).ToList());
+            List<string> lch=new List<string>();
+            foreach(var fpath in fs_paths.Intersect(ie_paths))
+            {
+                string full_path=Path.Combine(gitfs.gitp.Root,fpath);
+                (byte[] _, string fs_hash)=Object.HashObject(File.ReadAllBytes(full_path), ObjectType.blob);
+                if (fs_hash!=path_to_ie[fpath].hash)
+                    lch.Add(fpath);
+            }
+            List<string> lnew = new List<string>(fs_paths.Except(ie_paths));
+            List<string> ldel = new List<string>(ie_paths.Except(fs_paths));
+            lch.Sort(); lnew.Sort(); ldel.Sort();
+            return (lch, lnew, ldel);
+        } 
     }
 }

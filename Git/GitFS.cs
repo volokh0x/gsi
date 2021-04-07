@@ -59,7 +59,7 @@ namespace gsi
                 merge_msg=new MergeMsg(this);
             fpath=gitp.PathFromRoot("index");
             if (File.Exists(fpath))
-                index=new Index(fpath);
+                index=new Index(this);
             config_set=new ConfigSet();
             fpath=gitp.PathFromRoot("config");
             if (File.Exists(fpath))

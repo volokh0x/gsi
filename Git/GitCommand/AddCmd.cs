@@ -33,7 +33,7 @@ namespace gsi
             }
             
             if (gitfs.index==null)
-                gitfs.index=new Index(gitfs.gitp.PathFromRoot("index"),false);
+                gitfs.index=new Index(gitfs,false);
             foreach(var path in fpaths)
             {
                 Blob blob=new Blob(gitfs,path,true);
