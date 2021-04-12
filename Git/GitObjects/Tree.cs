@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Mono.Unix;
 
 namespace gsi
@@ -21,9 +22,33 @@ namespace gsi
                 gitfs, gitfs.index.Entries, gitfs.gitp.Root
             ).WriteTree();
         }
+        public static Dictionary<string,string> PToH(GitFS gitfs, string tree_hash, List<string> paths=null)
+        {
+            var partree=new Tree(gitfs,tree_hash);
+            partree.ReadTree();
+            var D = new Dictionary<string,string>();
+            string pardir;
+            if (paths==null) {paths=new List<string>(); pardir="";}
+            else {pardir=Path.Combine(paths.ToArray());}
+            foreach(var te in partree.Entries)
+            {
+                if (Tree.IsTreeMode(te.mode))
+                {
+                    paths.Add(te.name);
+                    foreach(var el in Tree.PToH(gitfs,te.hash,paths))
+                        D.Add(el.Key,el.Value);
+                    paths.RemoveAt(paths.Count-1);
+                }
+                else
+                {
+                    D.Add(Path.Combine(pardir,te.name),te.hash);
+                }
+            }
+            return D;
+        }
         public static bool IsTreeMode(int mode)
         {
-            return (int)Mono.Unix.FileTypes.Directory==mode<<12; // ?? shift left or right
+            return mode>>12==4; 
         }
 
         public List<TreeEntry> Entries;
@@ -72,11 +97,34 @@ namespace gsi
                 ies.RemoveAll(ie=>ie.path==ief.path); 
             }
         }
+        public Tree(GitFS gitfs, string hash)
+        {
+            this.gitfs=gitfs;
+            Hash=hash;
+        }
         public void ReadTree()
         {
             (byte[] data, ObjectType objt) = Object.ReadObject(OPath);
             if (objt!=ObjectType.tree) throw new Exception("not a tree");
-            // data to Content !!!
+            
+            int i=0, end; Entries=new List<TreeEntry>();
+            while (true)
+            {
+                end=Array.IndexOf(data, (byte)0, i);
+                if (end==-1)
+                    break;
+                byte[] header=new byte[end-i];
+                Buffer.BlockCopy(data, i, header, 0, header.Length);
+                string[] mas = Encoding.UTF8.GetString(header).Split(' ');
+                var te = new TreeEntry();
+                te.mode=Convert.ToInt32(mas[0], 8);
+                te.name=mas[1];
+                byte[] hash=new byte[20];
+                Buffer.BlockCopy(data, end+1, hash, 0, hash.Length);
+                te.hash=string.Concat(hash.Select(b => b.ToString("x2")));
+                Entries.Add(te);
+                i=end+1+20;
+            }
         }
         public string HashTree()
         {

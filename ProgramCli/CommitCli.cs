@@ -14,12 +14,12 @@ namespace gsi
 			Options = new OptionSet () {
 				"usage: gsi commit [OPTIONS]",
 				"",
-				{ "message|m=",
+				{"message|m=",
 				"message",
 				m => Message = m},
 				{"help|h|?",
 				"get help",
-				v => ShowHelp = v != null },
+				v => ShowHelp = v != null},
 			};
 		}
 		public override int Invoke (IEnumerable<string> args)
@@ -37,7 +37,7 @@ namespace gsi
 			}
 			catch (Exception e) 
 			{
-				Console.Error.WriteLine ($"gsi init: {e.ToString()}"); // e.Message
+				Console.Error.WriteLine ($"gsi init: {e.Message}"); 
 				return 1;
 			}
 		}

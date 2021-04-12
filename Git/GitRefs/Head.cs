@@ -11,7 +11,8 @@ namespace gsi
         public bool IsDetached;
         public string Content;
         public string Hash{get=>GetHash();}
-        
+        public string Branch{get=>GetBranch();}
+
         public Head(GitFS gitfs, bool read_head=true)
         {
             this.gitfs=gitfs;
@@ -60,6 +61,12 @@ namespace gsi
                 else return null;
             else
                 return Content;
+        }
+        private string GetBranch()
+        {
+            if (IsDetached) return null;
+            if (!Content.StartsWith("heads/")) return null;
+            return Content.Substring(6);
         }
     }
 }

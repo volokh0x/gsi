@@ -54,11 +54,45 @@ namespace gsi
                 message=message
             };
         }
+        public Commit(GitFS gitfs, string hash)
+        {
+            this.gitfs=gitfs;
+            Hash=hash;
+            ReadCommit();
+        }
         public void ReadCommit()
         {
             (byte[] data, ObjectType objt) = Object.ReadObject(OPath);
             if (objt!=ObjectType.commit) throw new Exception("not a commit");
-            // data to Content !!!
+            string[] lines = Encoding.UTF8.GetString(data).Split("\n");
+            
+            foreach(var line in lines)
+            {
+                if (line.StartsWith("tree ")) Content.tree_hash=line.Split(" ")[1];
+                else if (line.StartsWith("parent ")) 
+                {
+                    if (Content.parent_hashes==null) Content.parent_hashes=new List<string>();
+                    Content.parent_hashes.Add(line.Split(" ")[1]);
+                }
+                else if (line.StartsWith("author "))
+                {
+                    var mas = line.Split(" ");
+                    Content.author.name=mas[1];
+                    Content.author.email=mas[2];
+                    Content.author.timestamp=Convert.ToInt32(mas[3]);
+                    Content.author.utc_offset=StructConverter.UTC_OffsetToInt(mas[4]);
+                }
+                else if (line.StartsWith("comitter "))
+                {
+                    var mas = line.Split(" ");
+                    Content.comitter.name=mas[1];
+                    Content.comitter.email=mas[2];
+                    Content.comitter.timestamp=Convert.ToInt32(mas[3]); 
+                    Content.comitter.utc_offset=StructConverter.UTC_OffsetToInt(mas[4]);
+                }
+                else if (line!="") 
+                    Content.message=line;
+            }
         }
         public string HashCommit() 
         {

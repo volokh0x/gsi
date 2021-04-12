@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace gsi
@@ -33,6 +34,7 @@ namespace gsi
         public GitPath gitp;
         public Head head;
         public MergeHead merge_head;
+        public FetchHead fetch_head;
         public MergeMsg merge_msg;
         public Index index;
         public ConfigSet config_set;
@@ -54,6 +56,9 @@ namespace gsi
             fpath=gitp.PathFromRoot("MERGE_HEAD");
             if (File.Exists(fpath))
                 merge_head=new MergeHead(this);
+            fpath=gitp.PathFromRoot("FETCH_HEAD");
+            if (File.Exists(fpath))
+                fetch_head=new FetchHead(this);
             fpath=gitp.PathFromRoot("MERGE_MSG");
             if (File.Exists(fpath))
                 merge_msg=new MergeMsg(this);
@@ -101,6 +106,63 @@ namespace gsi
             if (merge_head!=null)
                 L.Add(merge_head.Hash);
             return L;
+        }
+        public Dictionary<string,string> PToH()
+        {
+            Dictionary<string,string> _PToH(string dir)
+            {
+                var D = new Dictionary<string,string>();
+                foreach(var file in Directory.EnumerateFiles(dir))
+                {
+                    string path = Path.Combine(dir,new FileInfo(file).Name);
+                    D.Add(gitp.RelToRoot(path), new Blob(this,path,true).HashBlob());
+                }
+                foreach(var d in Directory.EnumerateDirectories(dir))
+                {
+                    if (new DirectoryInfo(d).Name!=".git")
+                        foreach(var el in _PToH(d))
+                            D.Add(el.Key,el.Value);
+                }
+                return D;
+            }
+            return _PToH(Environment.CurrentDirectory);
+        }
+        public void ApplyDiff(Dictionary<string,FileDiffInfo> diffs)
+        {
+            foreach(var el in diffs)
+            {
+                var path = el.Key;
+                var diff = el.Value;
+                switch(diff.Status)
+                {
+                    case FileDiffStatus.ADD:
+                        string hash = diff.Receiver!=null?diff.Receiver:diff.Giver;
+                        File.WriteAllText(path,new Blob(this,hash,false).Content);
+                        break;
+                    case FileDiffStatus.CONFLICT:
+                        File.WriteAllLines
+                        (
+                            path,
+                            ComposeConflict(
+                                new Blob(this,diff.Receiver,false).Content.Split().ToList(),
+                                new Blob(this,diff.Giver,false).Content.Split().ToList())
+                        );
+                        break;
+                    case FileDiffStatus.MODIFY:
+                        File.WriteAllText(path, new Blob(this,diff.Giver,false).Content);
+                        break;
+                    case FileDiffStatus.DELETE:
+                        File.Delete(path);
+                        break;
+                }
+            }
+            // delete empty dirs !!!
+        }
+        private List<string> ComposeConflict(List<string>  text1, List<string>  text2)
+        {
+            // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            text1.AddRange(text2);
+            return text1;
         }
     }
 }

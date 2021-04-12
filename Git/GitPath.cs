@@ -46,6 +46,7 @@ namespace gsi
         }
         public string PathFromHash(string hash)
         {
+            if (hash.Length!=40) return "";
             return Path.Combine(DirPath["objects"],hash.Substring(0,2),hash.Substring(2));
         }
         public string HashFromPath(string path)

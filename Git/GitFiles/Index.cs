@@ -184,9 +184,16 @@ namespace gsi
         {
             return Entries.Where(ie=>Index.StageFromFlags(ie.flags)==Stage.RECEIVER).ToList();
         }
-        public List<IndexEntry> GetMatchingEntries(string ppattern)
+        public List<IndexEntry> GetEntriesByPattern(string ppattern)
         {
             return Entries.Where(ie=>Regex.IsMatch(ie.path,$"^{ppattern}")).ToList();
+        }
+        public Dictionary<string, string> PToH()
+        {
+            var D=new Dictionary<string,string>();
+            foreach(var ie in Entries)
+                D.Add(ie.path,ie.hash);
+            return D;
         }
         public (List<string>, List<string>, List<string>) GetStatus()
         {

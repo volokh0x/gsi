@@ -7,6 +7,7 @@ namespace gsi
 {
     partial class GitCommand 
     {
+        // implement diff, then make ir right here !!!!!!!
         public static void RmCmd(List<string> ppatterns, bool f, bool r)
         {   
             // valid non-bare repo
@@ -18,7 +19,7 @@ namespace gsi
 
             foreach(var ppattern in ppatterns) 
             {
-                var rm_fpaths=gitfs.index.GetMatchingEntries(gitfs.gitp.RelToRoot(Path.Combine(Environment.CurrentDirectory,ppattern))).Select(ie=>ie.path).ToList();
+                var rm_fpaths=gitfs.index.GetEntriesByPattern(gitfs.gitp.RelToRoot(Path.Combine(Environment.CurrentDirectory,ppattern))).Select(ie=>ie.path).ToList();
                 
                 if (f)
                     throw new Exception("not supported");

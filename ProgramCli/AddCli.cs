@@ -27,7 +27,7 @@ namespace gsi
 				return 0;
 			}
 			catch (Exception e) {
-				Console.Error.WriteLine ($"gsi add: {e.ToString()}"); // e.Message
+				Console.Error.WriteLine ($"gsi add: {e.Message}"); 
 				return 1;
 			}
 		}

@@ -20,14 +20,15 @@ namespace gsi
                 new InitCli(),  
                 new AddCli(),
                 new RmCli(),
-                new CommitCli()
+                new CommitCli(),
+                new BranchCli(),
+                new CheckoutCli()
             };
             return commands.Run(args);
         }
         static void MainX()
         {
-            string s="dir/dir2*";
-            Console.WriteLine(Path.GetRelativePath(Environment.CurrentDirectory,Path.Combine(Environment.CurrentDirectory, s)));
+            
         }
     }
 }

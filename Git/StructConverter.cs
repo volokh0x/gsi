@@ -88,5 +88,10 @@ namespace gsi
         {
             return $"{(utc_offset>0?"+":"-")}{(Math.Abs(utc_offset)/3600).ToString("D2")}{((Math.Abs(utc_offset)/60)%60).ToString("D2")}";
         }
+        public static int UTC_OffsetToInt(string utc_offset)
+        {
+            return 3600*Convert.ToInt32(utc_offset.Substring(1,2)) 
+                +  60*Convert.ToInt32(utc_offset.Substring(3,2)) ;
+        }
     }
 }

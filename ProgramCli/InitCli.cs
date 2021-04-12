@@ -47,7 +47,7 @@ namespace gsi
 			}
 			catch (Exception e) 
 			{
-				Console.Error.WriteLine ($"gsi init: {e.ToString()}"); // e.Message
+				Console.Error.WriteLine ($"gsi init: {e.Message}");
 				return 1;
 			}
 		}
