@@ -22,7 +22,8 @@ namespace gsi
                 new RmCli(),
                 new CommitCli(),
                 new BranchCli(),
-                new CheckoutCli()
+                new CheckoutCli(),
+                new StatusCli()
             };
             return commands.Run(args);
         }

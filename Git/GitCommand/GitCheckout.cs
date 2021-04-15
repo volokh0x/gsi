@@ -14,20 +14,28 @@ namespace gsi
             gitfs.gitp.AssertValidRoot();
             if (gitfs.config_set.config_pr!=null) gitfs.config_set.config_pr.AssertNotBare();
             Directory.SetCurrentDirectory(gitfs.gitp.Root);
+
             (bool detached, string hash) = Ref.GetIsDetachedAndHash(gitfs,ref_or_hash);
-            if (!File.Exists(gitfs.gitp.PathFromHash(hash)))
-                throw new Exception($"{hash} now found");
-            Commit c = new Commit(gitfs,hash);
-            if (ref_or_hash==gitfs.head.Content) 
+            if ($"heads/{ref_or_hash}"==gitfs.head.Content) 
                 throw new Exception($"already on {ref_or_hash}");
+            gitfs.Objs[hash]=new Commit(gitfs,hash);
 
-            var diffs = DiffCalc.Diff(gitfs,gitfs.head.Hash, hash);
-            foreach(var el in diffs)
-            {
-                Console.WriteLine($"{el.Key} {el.Value}");
-            }
-            //gitfs.ApplyDiff(diffs);
-
+            var paths = DiffCalc.CommitWouldOverwrite(gitfs,hash);
+            
+            if (paths.Count!=0)
+                throw new Exception($"local changes would be lost:\n {string.Join("\n",paths)}");
+            
+            gitfs.ApplyDiff(DiffCalc.Diff(gitfs,gitfs.head.Hash,hash)); 
+            if (detached) 
+                gitfs.head.SetHead(hash,true);
+            else 
+                gitfs.head.SetHead(gitfs.Refs[$"heads/{ref_or_hash}"]); // master vs refs/heads/master vs refs/remotes/nbranch ???
+            gitfs.index.SetFromStorage(Num.GIVER); 
+            gitfs.index.WriteIndex();
+            if (detached)
+                Console.WriteLine($"Note: checking out {hash}\nYou are in a detached state");
+            else   
+                Console.WriteLine($"Switched to branch {ref_or_hash}");
 
         }
     }

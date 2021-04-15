@@ -176,6 +176,43 @@ namespace gsi
             Entries.Add(ie);
             Entries = Entries.OrderBy(ie => ie.path).ToList();
         }
+        public void SetFromStorage(int num)
+        {
+            var pth = gitfs.PToH[num]; 
+            Entries=new List<IndexEntry>();
+            foreach(var el in pth)
+            {
+                string path = el.Key, hash = el.Value;
+                string obj_path=gitfs.Objs[hash].OPath;
+                int size=0; // !!! size from Objs[hash]
+
+                short len=(short)Encoding.UTF8.GetBytes(path).Length;
+                short flags=(short)(len&0b0000_111111111111);
+
+                UnixFileInfo unixFileInfo = new UnixFileInfo(obj_path);
+                int tt = StructConverter.TimeStamp(new FileInfo(obj_path).LastWriteTimeUtc);
+                int mode = ((int)unixFileInfo.Protection)|((int)unixFileInfo.FileAccessPermissions);
+
+                var ie = new IndexEntry
+                {
+                    ctime_n=tt,
+                    ctime_s=0,
+                    mtime_n=tt,
+                    mtime_s=0,
+                    dev=(int)unixFileInfo.DeviceType,
+                    ino=(int)unixFileInfo.Inode,
+                    mode=mode,
+                    uid=(int)unixFileInfo.OwnerUserId,
+                    gid=(int)unixFileInfo.OwnerGroupId,
+                    size=size,
+                    hash=hash,
+                    flags=flags,
+                    path=path
+                };
+                Entries.Add(ie);
+            }
+            Entries = Entries.OrderBy(ie => ie.path).ToList();
+        }
         public void DelEntry(string path)
         {
             Entries.RemoveAll(ie=>ie.path==path);

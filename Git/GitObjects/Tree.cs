@@ -22,30 +22,6 @@ namespace gsi
                 gitfs, gitfs.index.Entries, gitfs.gitp.Root
             ).WriteTree();
         }
-        public static Dictionary<string,string> PToH(GitFS gitfs, string tree_hash, List<string> paths=null)
-        {
-            var partree=new Tree(gitfs,tree_hash);
-            partree.ReadTree();
-            var D = new Dictionary<string,string>();
-            string pardir;
-            if (paths==null) {paths=new List<string>(); pardir="";}
-            else {pardir=Path.Combine(paths.ToArray());}
-            foreach(var te in partree.Entries)
-            {
-                if (Tree.IsTreeMode(te.mode))
-                {
-                    paths.Add(te.name);
-                    foreach(var el in Tree.PToH(gitfs,te.hash,paths))
-                        D.Add(el.Key,el.Value);
-                    paths.RemoveAt(paths.Count-1);
-                }
-                else
-                {
-                    D.Add(Path.Combine(pardir,te.name),te.hash);
-                }
-            }
-            return D;
-        }
         public static bool IsTreeMode(int mode)
         {
             return mode>>12==4; 
@@ -101,6 +77,7 @@ namespace gsi
         {
             this.gitfs=gitfs;
             Hash=hash;
+            ReadTree();
         }
         public void ReadTree()
         {

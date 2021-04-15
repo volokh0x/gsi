@@ -39,7 +39,7 @@ namespace gsi
                 gitfs.Refs[ref_name]=new Ref(gitfs,ref_name,false);
                 gitfs.Refs[ref_name].SetRef(gitfs.head.Hash);
                 //gitfs.head.SetHead(gitfs.Refs[ref_name]);
-                Console.WriteLine($"{gitfs.head.Content} branch created");
+                Console.WriteLine($"{branch_name} branch created");
             }
         }
     }

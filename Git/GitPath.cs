@@ -46,7 +46,20 @@ namespace gsi
         }
         public string PathFromHash(string hash)
         {
-            if (hash.Length!=40) return "";
+            string PTP(string hash_prefix)
+            {
+                if (hash_prefix.Length < 4) 
+                    return null;
+                string objd=Path.Combine(DirPath["objects"], hash_prefix.Substring(0,2));
+                string rest = hash_prefix.Substring(2);
+                string[] objects = Directory.GetFiles(objd, $"{rest}*");
+                if (objects.Length!=1) 
+                    throw new Exception($"{hash_prefix} ambiguity");
+                return objects[0];
+            }
+            if (hash.Length!=40) 
+                try{return PTP(hash);}
+                catch(Exception){return null;}
             return Path.Combine(DirPath["objects"],hash.Substring(0,2),hash.Substring(2));
         }
         public string HashFromPath(string path)

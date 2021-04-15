@@ -38,7 +38,8 @@ namespace gsi
         public MergeMsg merge_msg;
         public Index index;
         public ConfigSet config_set;
-        public Dictionary<string,Object> Objects = new Dictionary<string, Object>();
+        public Dictionary<string,Object> Objs = new Dictionary<string, Object>();
+        public Dictionary<string,string>[] PToH = new Dictionary<string, string>[3] {new Dictionary<string, string>(), new Dictionary<string, string>(),new Dictionary<string, string>()};
         public Dictionary<string,Ref> Refs = new Dictionary<string, Ref>();
 
         public GitFS(string cwdRelPath)
@@ -107,62 +108,127 @@ namespace gsi
                 L.Add(merge_head.Hash);
             return L;
         }
-        public Dictionary<string,string> PToH()
+        public void ReadObjsRecursively(string hash,int num)
         {
-            Dictionary<string,string> _PToH(string dir)
+            void ROR(string hash,int num,List<string> paths)
             {
-                var D = new Dictionary<string,string>();
-                foreach(var file in Directory.EnumerateFiles(dir))
+                string path;
+                if (paths==null){paths=new List<string>(); path="";}
+                else {path=Path.Combine(paths.ToArray());}
+
+                string path_from_hash = gitp.PathFromHash(hash);
+                byte[] data; ObjectType objt;
+
+                if (!Objs.ContainsKey(hash))
+                    (data, objt)=Object.ReadObject(path_from_hash);
+                else
                 {
-                    string path = Path.Combine(dir,new FileInfo(file).Name);
-                    D.Add(gitp.RelToRoot(path), new Blob(this,path,true).HashBlob());
+                    if (Objs[hash] is Blob) objt=ObjectType.blob;
+                    else if (Objs[hash] is Tree) objt=ObjectType.tree;
+                    else objt=ObjectType.commit;
                 }
-                foreach(var d in Directory.EnumerateDirectories(dir))
+                if (objt==ObjectType.blob)
                 {
-                    if (new DirectoryInfo(d).Name!=".git")
-                        foreach(var el in _PToH(d))
-                            D.Add(el.Key,el.Value);
+                    var blob = new Blob(this,path_from_hash,false);
+                    Objs[hash]=blob; 
+                    PToH[num][path]=hash; 
+                }  
+                else if (objt==ObjectType.tree)
+                {
+                    var tree = new Tree(this,hash);
+                    Objs[hash]=tree;
+                    foreach(var te in tree.Entries)
+                    {
+                        paths.Add(te.name);
+                        ROR(te.hash,num,paths);
+                        paths.RemoveAt(paths.Count-1);
+                    }     
                 }
-                return D;
+                else if (objt==ObjectType.commit)
+                {
+                    var commit = new Commit(this,hash);
+                    Objs[hash]=commit;
+                    ROR(commit.Content.tree_hash,num,null);
+                }
             }
-            return _PToH(Environment.CurrentDirectory);
+            ROR(hash,num,null);
         }
-        public void ApplyDiff(Dictionary<string,FileDiffInfo> diffs)
+        public void ReadWorkingCopyRecursively(int num)
+        {
+            void RWCR(int num,string path)
+            {
+                if (path==null) path=Environment.CurrentDirectory;
+                foreach(var file in Directory.EnumerateFiles(path))
+                {
+                    string fpath = Path.Combine(path,new FileInfo(file).Name);
+                    var blob = new Blob(this,fpath,true);
+                    string hash = blob.HashBlob();
+                    Objs[hash]=blob;
+                    PToH[num][gitp.RelToRoot(fpath)]=hash;
+                }
+                foreach(var p in Directory.EnumerateDirectories(path))
+                    if (new DirectoryInfo(p).Name!=".git")
+                        RWCR(num,p);
+            }
+            RWCR(num,null);
+        }
+        public void ApplyDiff(Dictionary<string,FileDiffStatus> diffs)
         {
             foreach(var el in diffs)
             {
+                Console.WriteLine($"{el.Key} {el.Value.ToString()}");
                 var path = el.Key;
-                var diff = el.Value;
-                switch(diff.Status)
+                var status = el.Value;
+                
+                string hash1, hash2;
+                Blob blob1=null, blob2=null;
+
+                if (PToH[Num.RECEIVER].ContainsKey(path))
+                {
+                    hash1=PToH[Num.RECEIVER][path];
+                    blob1=(Blob)Objs[hash1];
+                }
+                if (PToH[Num.GIVER].ContainsKey(path))
+                {
+                    hash2=PToH[Num.GIVER][path];
+                    blob2=(Blob)Objs[hash2];
+                }
+                switch(status)
                 {
                     case FileDiffStatus.ADD:
-                        string hash = diff.Receiver!=null?diff.Receiver:diff.Giver;
-                        File.WriteAllText(path,new Blob(this,hash,false).Content);
+                        File.WriteAllText(path,blob1.Content);
                         break;
                     case FileDiffStatus.CONFLICT:
-                        File.WriteAllLines
-                        (
-                            path,
-                            ComposeConflict(
-                                new Blob(this,diff.Receiver,false).Content.Split().ToList(),
-                                new Blob(this,diff.Giver,false).Content.Split().ToList())
-                        );
+                        File.WriteAllLines(path,
+                            DiffCalc.ComposeConflict(blob1.Content.Split().ToList(),blob2.Content.Split().ToList()));
                         break;
                     case FileDiffStatus.MODIFY:
-                        File.WriteAllText(path, new Blob(this,diff.Giver,false).Content);
+                        File.WriteAllText(path, blob2.Content);
                         break;
                     case FileDiffStatus.DELETE:
                         File.Delete(path);
                         break;
                 }
             }
-            // delete empty dirs !!!
+            DeleteEmptyDirs();
         }
-        private List<string> ComposeConflict(List<string>  text1, List<string>  text2)
+        public void DeleteEmptyDirs()
         {
-            // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            text1.AddRange(text2);
-            return text1;
+            void DED(string path)
+            {
+                foreach (var directory in Directory.GetDirectories(path))
+                {
+                    if (new DirectoryInfo(directory).Name==".git") 
+                        continue;
+                    DED(directory);
+                    if (Directory.GetFiles(directory).Length == 0 && 
+                        Directory.GetDirectories(directory).Length == 0)
+                    {
+                        Directory.Delete(directory, false);
+                    }
+                }
+            }
+            DED(gitp.Root);
         }
     }
 }

@@ -37,8 +37,7 @@ namespace gsi
             foreach(var path in fpaths)
             {
                 Blob blob=new Blob(gitfs,path,true);
-                string hash = blob.HashBlob();
-                blob.WriteBlob(false);
+                string hash = blob.WriteBlob();
                 gitfs.index.AddEntry(gitfs.gitp.RelToRoot(path), hash);
             } 
             gitfs.index.WriteIndex();       
