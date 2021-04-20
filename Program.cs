@@ -23,6 +23,7 @@ namespace gsi
                 new CommitCli(),
                 new BranchCli(),
                 new CheckoutCli(),
+                new MergeCli(),
                 new StatusCli()
             };
             return commands.Run(args);

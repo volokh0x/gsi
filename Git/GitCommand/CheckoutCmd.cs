@@ -20,10 +20,10 @@ namespace gsi
                 throw new Exception($"already on {ref_or_hash}");
             gitfs.Objs[hash]=new Commit(gitfs,hash);
 
-            var paths = DiffCalc.CommitWouldOverwrite(gitfs,hash);
+            var paths = DiffCalc.CommitWouldOverwrite(gitfs); //!!! deleted hash
             
             if (paths.Count!=0)
-                throw new Exception($"local changes would be lost:\n {string.Join("\n",paths)}");
+                throw new Exception($"local changes would be lost:\n\t {string.Join("\n\t",paths)}");
             
             gitfs.ApplyDiff(DiffCalc.Diff(gitfs,gitfs.head.Hash,hash)); 
             if (detached) 
@@ -36,7 +36,6 @@ namespace gsi
                 Console.WriteLine($"Note: checking out {hash}\nYou are in a detached state");
             else   
                 Console.WriteLine($"Switched to branch {ref_or_hash}");
-
         }
     }
 }

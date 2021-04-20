@@ -13,7 +13,10 @@ namespace gsi
         {
             this.gitfs=gitfs;
             if (!user_file)
+            {
                 Hash = gitfs.gitp.HashFromPath(path);
+                ReadBlob();
+            } 
             else 
                 Content = File.ReadAllText(path);
         }

@@ -1,5 +1,7 @@
 using System;
 using System.IO;
+using System.Text;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace gsi
@@ -19,9 +21,17 @@ namespace gsi
         {
             Content=File.ReadAllText(MPath);
         }
-        public void SetMergeMsg(string content)
+        public void SetMergeMsg(string ref_name, Dictionary<string,FileDiffStatus> conflicts)
         {
-            Content=content;
+            var msg=new StringBuilder();
+            msg.AppendLine($"Merge {ref_name} into {gitfs.head.Branch}");
+            if (conflicts.Count!=0)
+            {
+                msg.AppendLine("Conflicts:");
+                foreach(var path in conflicts.Keys)
+                    msg.AppendLine(path);
+            }
+            Content=msg.ToString();
             File.WriteAllText(MPath, Content);
         }
         public void Delete()

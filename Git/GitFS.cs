@@ -39,7 +39,7 @@ namespace gsi
         public Index index;
         public ConfigSet config_set;
         public Dictionary<string,Object> Objs = new Dictionary<string, Object>();
-        public Dictionary<string,string>[] PToH = new Dictionary<string, string>[3] {new Dictionary<string, string>(), new Dictionary<string, string>(),new Dictionary<string, string>()};
+        public Dictionary<string,string>[] PToH = new Dictionary<string, string>[3];
         public Dictionary<string,Ref> Refs = new Dictionary<string, Ref>();
 
         public GitFS(string cwdRelPath)
@@ -151,6 +151,7 @@ namespace gsi
                     ROR(commit.Content.tree_hash,num,null);
                 }
             }
+            PToH[num]=new Dictionary<string, string>();
             ROR(hash,num,null);
         }
         public void ReadWorkingCopyRecursively(int num)
@@ -170,17 +171,17 @@ namespace gsi
                     if (new DirectoryInfo(p).Name!=".git")
                         RWCR(num,p);
             }
+            PToH[num]=new Dictionary<string, string>();
             RWCR(num,null);
         }
         public void ApplyDiff(Dictionary<string,FileDiffStatus> diffs)
         {
             foreach(var el in diffs)
             {
-                Console.WriteLine($"{el.Key} {el.Value.ToString()}");
                 var path = el.Key;
                 var status = el.Value;
                 
-                string hash1, hash2;
+                string hash1=null, hash2=null;
                 Blob blob1=null, blob2=null;
 
                 if (PToH[Num.RECEIVER].ContainsKey(path))
@@ -196,7 +197,10 @@ namespace gsi
                 switch(status)
                 {
                     case FileDiffStatus.ADD:
-                        File.WriteAllText(path,blob1.Content);
+                        if (blob1!=null)
+                            File.WriteAllText(path,blob1.Content);
+                        if (blob2!=null)
+                            File.WriteAllText(path,blob2.Content);
                         break;
                     case FileDiffStatus.CONFLICT:
                         File.WriteAllLines(path,
@@ -229,6 +233,50 @@ namespace gsi
                 }
             }
             DED(gitp.Root);
+        }
+        public string GetBaseCommitHash(string hash1, string hash2)
+        {
+            int RCR(string start_hash)
+            {
+                int depth=-1;
+                var S=new Stack<string>();
+                S.Push(start_hash);
+                while (S.Count!=0)
+                {
+                    string hash = S.Pop();
+                    var commit = new Commit(this,hash);
+                    Objs[hash]=commit;
+                    if (commit.Content.parent_hashes.Count!=0)
+                        S.Push(commit.Content.parent_hashes[0]);
+                    depth+=1;
+                }
+                return depth;
+            }
+
+            int h1 = RCR(hash1); 
+            int h2 = RCR(hash2);
+
+            while (h1!=h2)
+            {
+                if (h1>h2)
+                {
+                    hash1=((Commit)Objs[hash1]).Content.parent_hashes[0];
+                    h1-=1;
+                }
+                else
+                {
+                    hash2=((Commit)Objs[hash2]).Content.parent_hashes[0];
+                    h2-=1; 
+                }
+            }
+
+            while (hash1!=hash2)
+            {
+                hash1=((Commit)Objs[hash1]).Content.parent_hashes[0];
+                hash2=((Commit)Objs[hash2]).Content.parent_hashes[0];
+            }
+
+            return hash1;
         }
     }
 }

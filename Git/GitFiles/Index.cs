@@ -146,15 +146,19 @@ namespace gsi
             // write to a file
             File.WriteAllBytes(IndexPath, res.ToArray());
         }
-        public void AddEntry(string path, string hash)
+        private IndexEntry GenIndexEntry(string fpath, string hash, int stage, bool read_obj=false)
         {
-            Entries.RemoveAll(ie=>ie.path==path);
+            string path_to_read;
+            if (read_obj)
+                path_to_read=gitfs.Objs[hash].OPath;
+            else 
+                path_to_read=fpath;
             
-            short len=(short)Encoding.UTF8.GetBytes(path).Length;
-            short flags=(short)(len&0b0000_111111111111);
+            short len=(short)(Encoding.UTF8.GetBytes(fpath).Length&0b0000_111111111111);
+            short flags=(short)((stage<<12)+len);
 
-            UnixFileInfo unixFileInfo = new UnixFileInfo(path);
-            int tt = StructConverter.TimeStamp(new FileInfo(path).LastWriteTimeUtc);
+            UnixFileInfo unixFileInfo = new UnixFileInfo(path_to_read);
+            int tt = StructConverter.TimeStamp(new FileInfo(path_to_read).LastWriteTimeUtc);
             int mode = ((int)unixFileInfo.Protection)|((int)unixFileInfo.FileAccessPermissions);
 
             var ie = new IndexEntry
@@ -171,45 +175,55 @@ namespace gsi
                 size=(int)unixFileInfo.Length,
                 hash=hash,
                 flags=flags,
-                path=path
+                path=fpath
             };
-            Entries.Add(ie);
+            return ie;
+        }
+        public void AddEntry(string path, string hash)
+        {
+            Entries.RemoveAll(ie=>ie.path==path);
+            Entries.Add(GenIndexEntry(path,hash,0));
             Entries = Entries.OrderBy(ie => ie.path).ToList();
+        }
+        public void SetFromStorage(int num1, int num2, int num3, Dictionary<string,FileDiffStatus> status)
+        {
+            Entries=new List<IndexEntry>();
+            var pth1=gitfs.PToH[num1];
+            var pth2=gitfs.PToH[num2];
+            var pth3=gitfs.PToH[num3];
+
+            foreach (var item in status)
+            {
+                string path = item.Key; FileDiffStatus fds=item.Value;
+                switch(fds)
+                {
+                    case FileDiffStatus.SAME:
+                        Entries.Add(GenIndexEntry(path,pth1[path],0,true));
+                        break;
+                    case FileDiffStatus.MODIFY:
+                        Entries.Add(GenIndexEntry(path,pth2[path],0,true));
+                        break;
+                    case FileDiffStatus.ADD:
+                        string hash = pth1.ContainsKey(path)?pth1[path]:pth2[path];
+                        Entries.Add(GenIndexEntry(path,hash,0,true));
+                        break;
+                    case FileDiffStatus.CONFLICT:
+                        Entries.Add(GenIndexEntry(path,pth3[path],1,true));
+                        Entries.Add(GenIndexEntry(path,pth1[path],2,true));
+                        Entries.Add(GenIndexEntry(path,pth2[path],3,true));
+                        break;
+                }
+            }
+
         }
         public void SetFromStorage(int num)
         {
-            var pth = gitfs.PToH[num]; 
             Entries=new List<IndexEntry>();
+            var pth = gitfs.PToH[num]; 
             foreach(var el in pth)
             {
                 string path = el.Key, hash = el.Value;
-                string obj_path=gitfs.Objs[hash].OPath;
-                int size=0; // !!! size from Objs[hash]
-
-                short len=(short)Encoding.UTF8.GetBytes(path).Length;
-                short flags=(short)(len&0b0000_111111111111);
-
-                UnixFileInfo unixFileInfo = new UnixFileInfo(obj_path);
-                int tt = StructConverter.TimeStamp(new FileInfo(obj_path).LastWriteTimeUtc);
-                int mode = ((int)unixFileInfo.Protection)|((int)unixFileInfo.FileAccessPermissions);
-
-                var ie = new IndexEntry
-                {
-                    ctime_n=tt,
-                    ctime_s=0,
-                    mtime_n=tt,
-                    mtime_s=0,
-                    dev=(int)unixFileInfo.DeviceType,
-                    ino=(int)unixFileInfo.Inode,
-                    mode=mode,
-                    uid=(int)unixFileInfo.OwnerUserId,
-                    gid=(int)unixFileInfo.OwnerGroupId,
-                    size=size,
-                    hash=hash,
-                    flags=flags,
-                    path=path
-                };
-                Entries.Add(ie);
+                Entries.Add(GenIndexEntry(path,hash,0,true));
             }
             Entries = Entries.OrderBy(ie => ie.path).ToList();
         }

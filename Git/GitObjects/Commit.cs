@@ -66,12 +66,12 @@ namespace gsi
             if (objt!=ObjectType.commit) throw new Exception("not a commit");
             string[] lines = Encoding.UTF8.GetString(data).Split("\n");
             
+            Content.parent_hashes=new List<string>();
             foreach(var line in lines)
             {
                 if (line.StartsWith("tree ")) Content.tree_hash=line.Split(" ")[1];
                 else if (line.StartsWith("parent ")) 
                 {
-                    if (Content.parent_hashes==null) Content.parent_hashes=new List<string>();
                     Content.parent_hashes.Add(line.Split(" ")[1]);
                 }
                 else if (line.StartsWith("author "))

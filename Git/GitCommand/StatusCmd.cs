@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Collections.Generic;
 
 namespace gsi
 {
@@ -7,6 +8,17 @@ namespace gsi
     {
         public static void SatusCmd()
         {
+            bool PF(string msg, List<string> L)
+            {
+                if (L.Count!=0)
+                {
+                    Console.WriteLine(msg);
+                    foreach (var f in L) Console.WriteLine($"\t{f}");
+                    Console.WriteLine();
+                    return true;
+                }
+                return false;
+            }
             // valid non-bare repo
             GitFS gitfs=new GitFS(Environment.CurrentDirectory);
             gitfs.gitp.AssertValidRoot();
@@ -14,24 +26,12 @@ namespace gsi
             Directory.SetCurrentDirectory(gitfs.gitp.Root);
 
             (var lch, var lnew, var ldel)=gitfs.index.GetStatus();
-            if (lch.Count!=0)
-            {
-                Console.WriteLine("Changed files:");
-                foreach (var f in lch) Console.WriteLine($"\t{f}");
-                Console.WriteLine();
-            }
-            if (lnew.Count!=0)
-            {
-                Console.WriteLine("New files:");
-                foreach (var f in lnew) Console.WriteLine($"\t{f}");
-                Console.WriteLine();
-            }
-            if (ldel.Count!=0)
-            {
-                Console.WriteLine("Deleted files:");
-                foreach (var f in ldel) Console.WriteLine($"\t{f}");
-                Console.WriteLine();
-            }
+            bool done=false;
+            done=done || PF("Changed files:",lch);
+            done=done || PF("New files:",lnew);
+            done=done || PF("Deleted files:",ldel);
+            if (done) return; 
+            Console.WriteLine("working tree is clean");
         }
     }
 }
