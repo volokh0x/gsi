@@ -39,6 +39,7 @@ namespace gsi
                 Blob blob=new Blob(gitfs,path,true);
                 string hash = blob.WriteBlob();
                 gitfs.index.AddEntry(gitfs.gitp.RelToRoot(path), hash);
+                Console.WriteLine($"{path} added");
             } 
             gitfs.index.WriteIndex();       
         }

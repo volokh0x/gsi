@@ -17,11 +17,16 @@ namespace gsi
 		{
 			try {
 				var extra = Options.Parse(args);
-				GitCommand.BranchCmd(extra.Count!=0?extra[0]:null);
+				if (extra.Count!=1)
+				{
+					throw new Exception("must specify one branch name to create");
+				}
+				GitCommand.BranchCmd(extra[0]);
 				return 0;
 			}
 			catch (Exception e) {
 				Console.Error.WriteLine ($"gsi branch: {e.Message}");
+				Console.Error.WriteLine ($"gsi branch: aborted ...");
 				return 1;
 			}
 		}

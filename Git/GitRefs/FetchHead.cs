@@ -20,11 +20,6 @@ namespace gsi
         {
             Content=File.ReadAllLines(FPath);
         }
-        // public void SetFetchHead()
-        // {
-
-        //     // File.WriteAllText();
-        // }
         public string FetchHeadBranchToMerge(string branch_name)
         {
             return Content

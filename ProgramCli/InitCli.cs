@@ -13,10 +13,10 @@ namespace gsi
 		public InitCli () : base ("init", "init some repo")
 		{
 			Options = new OptionSet () {
-				"usage: gsi init [dir] [OPTIONS]",
+				"use as: gsi init [path] ...",
 				"",
 				{ "bare|b",
-				"create a bare repo",
+				"only for server-side git repo",
 				b => IsBare = b != null },
 				{"help|h|?",
 				"get help",
@@ -39,8 +39,7 @@ namespace gsi
 					Path=extra[0];
 				else 
 				{
-					Console.Error.WriteLine("gsi init: to many arguments");
-					return 1;
+					throw new Exception("too many arguments");
 				}
 				GitCommand.InitCmd(Path,IsBare);
 				return 0;
@@ -48,6 +47,7 @@ namespace gsi
 			catch (Exception e) 
 			{
 				Console.Error.WriteLine ($"gsi init: {e.Message}");
+				Console.Error.WriteLine ($"gsi init: aborted ...");
 				return 1;
 			}
 		}

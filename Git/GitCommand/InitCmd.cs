@@ -11,8 +11,8 @@ namespace gsi
             GitFS gitfs=new GitFS(root_path);
             if (gitfs.gitp.ValidRoot()) 
             {
-                Console.WriteLine($"git repository already exists at: {gitfs.gitp.Root}");
-                Console.WriteLine($"aborted ...");
+                Console.WriteLine($"git repository already exists at:");
+                Console.WriteLine($"\t{gitfs.gitp.Root}");
                 return;
             }
 

@@ -12,16 +12,13 @@ namespace gsi
         public int mode;
         public string name;
         public string hash;
+        public override string ToString()
+        {
+            return $"{StructConverter.IntToOctal6(mode)} {name} {hash}";
+        }
     }
     class Tree : Object
     {
-        public static string WriteTreeGraph(GitFS gitfs)
-        {
-            return new Tree
-            (
-                gitfs, gitfs.index.Entries, gitfs.gitp.Root
-            ).WriteTree();
-        }
         public static bool IsTreeMode(int mode)
         {
             return mode>>12==4; 
@@ -30,54 +27,53 @@ namespace gsi
         public List<TreeEntry> Entries;
         private byte[] HashedContent;
 
-        public Tree(GitFS gitfs, List<IndexEntry> ies, string pardir)
-        {
-            this.gitfs=gitfs;
-            Entries=new List<TreeEntry>();
-            
-            while (ies.Count>0)
-            {
-                var ief=ies.First();  
-                
-                string entry_path = Path.GetFullPath(ief.path);
-                string path_from_par = Path.GetRelativePath(pardir,entry_path);
-
-                if (path_from_par.Contains(Path.DirectorySeparatorChar))
-                {
-                    // tree
-                    string name=path_from_par.Split(Path.DirectorySeparatorChar)[0];
-                    pardir=Path.Combine(pardir,name);
-                    string hash=new Tree
-                    (
-                        gitfs, ies.Where(ie=>ie.path.StartsWith(gitfs.gitp.RelToRoot(pardir))).ToList(), pardir
-                    ).WriteTree();
-                    var te = new TreeEntry
-                    {
-                        mode=0b0100_000_000_000_000,
-                        name=name,
-                        hash=hash
-                    };
-                    Entries.Add(te);
-                }
-                else 
-                {
-                    // blob entry
-                    var te = new TreeEntry
-                    {
-                        mode=0b1000_000_100_100_100,
-                        name=path_from_par,
-                        hash=ief.hash
-                    };
-                    Entries.Add(te);
-                }
-                ies.RemoveAll(ie=>ie.path==ief.path); 
-            }
-        }
         public Tree(GitFS gitfs, string hash)
         {
             this.gitfs=gitfs;
             Hash=hash;
             ReadTree();
+        }
+        public Tree(GitFS gitfs, List<IndexEntry> ies, string root)
+        {
+            this.gitfs=gitfs;
+            Entries=new List<TreeEntry>();
+
+            while(ies.Count!=0)
+            {
+                var ie = ies.First();
+                var relpath = Path.GetRelativePath(root,ie.path);
+                
+                TreeEntry te;
+                var mas = relpath.Split(Path.DirectorySeparatorChar);
+                var name=mas[0];
+                if (mas.Length==1)
+                {
+                    // blob
+                    te = new TreeEntry
+                    {
+                        mode=0b1000_000_100_100_100,
+                        name=name,
+                        hash=ie.hash
+                    };
+                    ies.Remove(ie);
+                }
+                else 
+                {
+                    // tree
+                    var new_root=Path.Combine(root,name);
+                    var x = Path.GetRelativePath(gitfs.gitp.Root,new_root);
+                    var tree = new Tree(gitfs,ies.Where(ie=>ie.path.StartsWith(x)).ToList(),new_root);
+                    var hash = tree.WriteTree();
+                    te = new TreeEntry
+                    {
+                        mode=0b0100_000_000_000_000,
+                        name=name,
+                        hash=hash
+                    }; 
+                    ies.RemoveAll(ie=>ie.path.StartsWith(x));
+                }
+                Entries.Add(te);
+            }
         }
         public void ReadTree()
         {

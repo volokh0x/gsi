@@ -2,11 +2,6 @@
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Collections.Generic;
-using System.Security.AccessControl;
-using System.Security.Principal;
-using Mono.Unix;
 using Mono.Options;
 
 namespace gsi
@@ -16,7 +11,7 @@ namespace gsi
         static int Main (string[] args)
         {
             var commands = new CommandSet ("gsi") {
-                "usage: gsi COMMAND [OPTIONS]+",
+                "use as: gsi [sub-command] ...",
                 new InitCli(),  
                 new AddCli(),
                 new RmCli(),
@@ -24,13 +19,11 @@ namespace gsi
                 new BranchCli(),
                 new CheckoutCli(),
                 new MergeCli(),
+                new CatFileCli(),
+                new LsFilesCli(),
                 new StatusCli()
             };
             return commands.Run(args);
-        }
-        static void MainX()
-        {
-            
         }
     }
 }

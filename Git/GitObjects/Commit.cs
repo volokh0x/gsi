@@ -33,6 +33,7 @@ namespace gsi
         }
 
         public CommitContent Content;
+        public string Text {get=>string.Join("\n", Stringify());}
         private byte[] HashedContent;
         
         public Commit(GitFS gitfs, string tree_hash, string message)
@@ -94,7 +95,7 @@ namespace gsi
                     Content.message=line;
             }
         }
-        public string HashCommit() 
+        private List<string> Stringify()
         {
             List<string> L = new List<string>();
             L.Add($"tree {Content.tree_hash}");
@@ -104,6 +105,11 @@ namespace gsi
             L.Add($"");
             L.Add($"{Content.message}");
             L.Add($"");
+            return L;
+        }
+        public string HashCommit() 
+        {
+            var L = Stringify();   
             (byte[] hashed_data, string hash)=Object.HashObject(Encoding.UTF8.GetBytes(string.Join("\n", L)), ObjectType.commit);
             HashedContent=hashed_data; Hash=hash;
             return hash;

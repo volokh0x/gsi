@@ -20,16 +20,16 @@ namespace gsi
                 throw new Exception($"already on {ref_or_hash}");
             gitfs.Objs[hash]=new Commit(gitfs,hash);
 
-            var paths = DiffCalc.CommitWouldOverwrite(gitfs); //!!! deleted hash
+            var paths = DiffCalc.CommitWouldOverwrite(gitfs); 
             
             if (paths.Count!=0)
                 throw new Exception($"local changes would be lost:\n\t {string.Join("\n\t",paths)}");
             
-            gitfs.ApplyDiff(DiffCalc.Diff(gitfs,gitfs.head.Hash,hash)); 
+            gitfs.ApplyDiff(DiffCalc.Diff(gitfs,gitfs.head.Hash,hash),"HEAD",ref_or_hash); 
             if (detached) 
                 gitfs.head.SetHead(hash,true);
             else 
-                gitfs.head.SetHead(gitfs.Refs[$"heads/{ref_or_hash}"]); // master vs refs/heads/master vs refs/remotes/nbranch ???
+                gitfs.head.SetHead(gitfs.Refs[$"heads/{ref_or_hash}"]); 
             gitfs.index.SetFromStorage(Num.GIVER); 
             gitfs.index.WriteIndex();
             if (detached)

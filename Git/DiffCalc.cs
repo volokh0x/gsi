@@ -13,7 +13,8 @@ namespace gsi
     enum FileDiffStatus
     {
         ADD,
-        MODIFY,
+        MODIFYre,
+        MODIFYgi,
         DELETE,
         SAME,
         CONFLICT
@@ -35,7 +36,7 @@ namespace gsi
                 gitfs.ReadWorkingCopyRecursively(Num.GIVER);
             b=gitfs.PToH[Num.GIVER];
             if (hash3!=null)
-                gitfs.ReadObjsRecursively(hash2,Num.BASE);
+                gitfs.ReadObjsRecursively(hash3,Num.BASE);
             c=hash3!=null?gitfs.PToH[Num.BASE]:null;
             return DiffInfos(a,b,c);
         }
@@ -51,7 +52,8 @@ namespace gsi
                 if (re && gi && receiver!=giver)
                 {
                     if (receiver!=bbase && giver!=bbase) return FileDiffStatus.CONFLICT;
-                    return FileDiffStatus.MODIFY;
+                    if (giver!=bbase) return FileDiffStatus.MODIFYgi;
+                    if (receiver!=bbase) return FileDiffStatus.MODIFYre;
                 }
                 else if (receiver==giver) 
                     return FileDiffStatus.SAME;
@@ -63,10 +65,6 @@ namespace gsi
                        (bb && re && !gi)
                     || (bb && gi && !re))
                     return FileDiffStatus.DELETE;
-                // else if (gi)
-                //     return FileDiffStatus.ADD;
-                // else if (!gi)
-                //     return FileDiffStatus.DELETE;
                 throw new Exception("something went wrong when comparing hashes");
             }
             if (bbase==null) bbase=receiver;
@@ -87,8 +85,6 @@ namespace gsi
         public static List<string> CommitWouldOverwrite(GitFS gitfs)
         {
             string head_hash = gitfs.head.Hash;
-            // var a = DiffCalc.Diff(gitfs,head_hash).Where(el=>el.Value!=FileDiffStatus.SAME).Select(el=>el.Key).ToList();
-            // var b = DiffCalc.Diff(gitfs,head_hash,hash).Where(el=>el.Value!=FileDiffStatus.SAME).Select(el=>el.Key).ToList();
             return DiffCalc.Diff(gitfs,head_hash).Where(el=>el.Value!=FileDiffStatus.SAME).Select(el=>el.Key).ToList();
         }
         public static List<string> AddedOrModified(GitFS gitfs)
@@ -109,13 +105,49 @@ namespace gsi
                 .Select(el=>el.Key)
                 .ToList();
         }
-        public static List<string> ComposeConflict(List<string> text1, List<string> text2)
+        public static List<string> ComposeConflict(string[] text1, string ref1, string[] text2, string ref2)
         {
-            // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            text1.Insert(0,">>>>>>> a");
-            text1.Insert(text1.Count-1,"<<<<<<<< b");
-            text1.AddRange(text2);
-            return text1;
+            List<(int,int)> GetIndexes(int l, int r)
+            {
+                if (l==-1 || r==-1) return new List<(int,int)>();
+                if (text1[l]==text2[r])
+                {
+                    List<(int,int)> L = GetIndexes(l-1,r-1);
+                    L.Add((l,r));
+                    return L;
+                }
+                else
+                {
+                    List<(int,int)> L1  = GetIndexes(l-1,r);
+                    List<(int,int)> L2  = GetIndexes(l,r-1);
+                    if (L1.Count>L2.Count) return L1;
+                    else return L2;
+                }
+            }
+            var text=new List<string>();
+            void Mark(int st1, int len1, int st2, int len2)
+            {
+                if (len1==0 && len2==0) return;
+                int end1=st1+len1, end2=st2+len2;
+                text.Add($"<<<<<<< {ref1}");
+                for (int i=st1; i<end1; i++) text.Add(text1[i]);
+                text.Add("=======");
+                for (int i=st2; i<end2; i++) text.Add(text2[i]);
+                text.Add($">>>>>>> {ref2}");
+            }
+            List<(int,int)> L =GetIndexes(text1.Length-1,text2.Length-1);
+            L.Add((text1.Length,text2.Length));
+            int prevl=-1, prevr=-1;
+
+            foreach((int l, int r) in L)
+            {
+                int st1=prevl+1, st2=prevr+1;
+                int lenl=l-prevl-1, lenr=r-prevr-1; 
+                Mark(st1,lenl,st2,lenr);
+                if (l<text1.Length) text.Add(text1[l]);
+                prevl=l; prevr=r;
+            }
+            return text;
         }
     }
 }

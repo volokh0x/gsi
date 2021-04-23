@@ -9,7 +9,7 @@ namespace gsi
 		public AddCli () : base ("add", "add files to staging area")
 		{
 			Options = new OptionSet () {
-				"usage: gsi add [files]",
+				"usage: gsi add <path1> [path2...]",
 				"",
 			};
 		}
@@ -19,15 +19,14 @@ namespace gsi
 				var extra = Options.Parse (args);
 				if (extra.Count==0)
                 {
-                    Console.WriteLine("gsi add: nothing to add");
-                    Console.WriteLine("gsi add: aborted ...");
-					return 0;
+					throw new Exception("nothing to add");
                 }
 				GitCommand.AddCmd(extra);
 				return 0;
 			}
 			catch (Exception e) {
 				Console.Error.WriteLine ($"gsi add: {e.Message}"); 
+				Console.Error.WriteLine ($"gsi add: aborted ...");
 				return 1;
 			}
 		}

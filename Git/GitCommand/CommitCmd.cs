@@ -19,7 +19,7 @@ namespace gsi
             if (gitfs.index==null)
                 throw new Exception("index file does not exist");
             
-            string tree_hash = Tree.WriteTreeGraph(gitfs);
+            string tree_hash = gitfs.WriteTreeGraph();
             string head_desc=gitfs.head.IsDetached?"detached HEAD":gitfs.head.Content;
 
             if (tree_hash==gitfs.head.Hash)

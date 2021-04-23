@@ -22,6 +22,7 @@ namespace gsi
                 
             gitfs.Objs[giver]=new Commit(gitfs,giver);
             string bbase = gitfs.GetBaseCommitHash(receiver,giver);
+
             if (bbase==giver)
             {
                 Console.WriteLine("already up to date");
@@ -34,7 +35,7 @@ namespace gsi
 
             if (bbase==receiver)
             {
-                gitfs.ApplyDiff(DiffCalc.Diff(gitfs,receiver,giver)); 
+                gitfs.ApplyDiff(DiffCalc.Diff(gitfs,receiver,giver),"HEAD",ref_or_hash); 
 
                 gitfs.index.SetFromStorage(Num.GIVER); 
                 gitfs.index.WriteIndex();
@@ -50,13 +51,13 @@ namespace gsi
                 var diffs = DiffCalc.Diff(gitfs,receiver,giver,bbase);
                 var conflicts = diffs.Where(fds=>fds.Value==FileDiffStatus.CONFLICT).ToDictionary(p=>p.Key,p=>p.Value);
 
-                gitfs.ApplyDiff(diffs);
-
-                gitfs.index.SetFromStorage(Num.RECEIVER,Num.GIVER,Num.BASE,diffs); 
-                gitfs.index.WriteIndex();
-
                 gitfs.merge_msg = new MergeMsg(gitfs,false);
                 gitfs.merge_msg.SetMergeMsg(ref_or_hash,conflicts);
+
+                gitfs.ApplyDiff(diffs,"HEAD",ref_or_hash);
+
+                gitfs.index.SetFromStorageMerge(diffs); 
+                gitfs.index.WriteIndex();
 
                 if (conflicts.Count()!=0)
                     throw new Exception("automatic merge failed. Fix conflicts and commit the result");

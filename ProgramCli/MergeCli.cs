@@ -9,7 +9,7 @@ namespace gsi
 		public MergeCli () : base ("merge", "merge with some branch")
 		{
 			Options = new OptionSet () {
-				"usage: gsi branch [branch]",
+				"usage: gsi merge <branch>",
 				"",
 			};
 		}
@@ -20,16 +20,15 @@ namespace gsi
 				var extra = Options.Parse (args);
 				if (extra.Count!=1)
                 {
-                    Console.WriteLine("gsi merge: must specify one branch to checkout");
-                    Console.WriteLine("gsi merge: aborted ...");
-					return 0;
+					throw new Exception("must specify one branch to merge in");
                 }
 				GitCommand.MergeCmd(extra[0]);
 				return 0;
 			}
 			catch (Exception e) 
 			{
-				Console.Error.WriteLine ($"gsi merge: {e.ToString()}"); 
+				Console.Error.WriteLine ($"gsi merge: {e.Message}"); 
+				Console.Error.WriteLine ($"gsi merge: aborted ...");
 				return 1;
 			}
 		}

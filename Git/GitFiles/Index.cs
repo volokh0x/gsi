@@ -30,21 +30,22 @@ namespace gsi
         public string hash;
         public short flags;
         public string path;
+        public int stage {get=>((flags>>12)&0b11);}
+        public string mode_oct {get=>StructConverter.IntToOctal6(mode);}
+        public override string ToString()
+        {
+            return $"{mode_oct} {hash} {stage}\t{path}";
+        }
     }
-    enum Stage
+    static class Stage
     {
-        NONCONFL,
-        BASE,
-        RECEIVER,
-        GIVER
+        public static int NONCONFL=0;
+        public static int BASE=1;
+        public static int RECEIVER=2;
+        public static int GIVER=3;
     }
     class Index 
     {
-        public static Stage StageFromFlags(short flags)
-        {
-            return (Stage)((flags>>12)&0b11);
-        }
-        
         private GitFS gitfs;
         public string IndexPath {get => gitfs.gitp.PathFromRoot("index");}
         public IndexHeader indh;
@@ -185,12 +186,12 @@ namespace gsi
             Entries.Add(GenIndexEntry(path,hash,0));
             Entries = Entries.OrderBy(ie => ie.path).ToList();
         }
-        public void SetFromStorage(int num1, int num2, int num3, Dictionary<string,FileDiffStatus> status)
+        public void SetFromStorageMerge(Dictionary<string,FileDiffStatus> status)
         {
             Entries=new List<IndexEntry>();
-            var pth1=gitfs.PToH[num1];
-            var pth2=gitfs.PToH[num2];
-            var pth3=gitfs.PToH[num3];
+            var pth1=gitfs.PToH[Num.RECEIVER];
+            var pth2=gitfs.PToH[Num.GIVER];
+            var pth3=gitfs.PToH[Num.BASE];
 
             foreach (var item in status)
             {
@@ -198,23 +199,25 @@ namespace gsi
                 switch(fds)
                 {
                     case FileDiffStatus.SAME:
-                        Entries.Add(GenIndexEntry(path,pth1[path],0,true));
+                        Entries.Add(GenIndexEntry(path,pth1[path],Stage.NONCONFL,true));
                         break;
-                    case FileDiffStatus.MODIFY:
-                        Entries.Add(GenIndexEntry(path,pth2[path],0,true));
+                    case FileDiffStatus.MODIFYre:
+                        Entries.Add(GenIndexEntry(path,pth1[path],Stage.NONCONFL,true));
+                        break;
+                    case FileDiffStatus.MODIFYgi:
+                        Entries.Add(GenIndexEntry(path,pth2[path],Stage.NONCONFL,true));
                         break;
                     case FileDiffStatus.ADD:
                         string hash = pth1.ContainsKey(path)?pth1[path]:pth2[path];
-                        Entries.Add(GenIndexEntry(path,hash,0,true));
+                        Entries.Add(GenIndexEntry(path,hash,Stage.NONCONFL,true));
                         break;
                     case FileDiffStatus.CONFLICT:
-                        Entries.Add(GenIndexEntry(path,pth3[path],1,true));
-                        Entries.Add(GenIndexEntry(path,pth1[path],2,true));
-                        Entries.Add(GenIndexEntry(path,pth2[path],3,true));
+                        Entries.Add(GenIndexEntry(path,pth3[path],Stage.BASE,true));
+                        Entries.Add(GenIndexEntry(path,pth1[path],Stage.RECEIVER,true));
+                        Entries.Add(GenIndexEntry(path,pth2[path],Stage.GIVER,true));
                         break;
                 }
             }
-
         }
         public void SetFromStorage(int num)
         {
@@ -223,7 +226,7 @@ namespace gsi
             foreach(var el in pth)
             {
                 string path = el.Key, hash = el.Value;
-                Entries.Add(GenIndexEntry(path,hash,0,true));
+                Entries.Add(GenIndexEntry(path,hash,Stage.NONCONFL,true));
             }
             Entries = Entries.OrderBy(ie => ie.path).ToList();
         }
@@ -233,7 +236,7 @@ namespace gsi
         }
         public List<IndexEntry> GetConfilctingEntries()
         {
-            return Entries.Where(ie=>Index.StageFromFlags(ie.flags)==Stage.RECEIVER).ToList();
+            return Entries.Where(ie=>ie.stage==Stage.GIVER).ToList();
         }
         public List<IndexEntry> GetEntriesByPattern(string ppattern)
         {

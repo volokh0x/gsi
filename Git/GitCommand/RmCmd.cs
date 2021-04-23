@@ -39,7 +39,6 @@ namespace gsi
                 if (Directory.Exists(ppattern)) Directory.Delete(ppattern);
                 gitfs.index.WriteIndex();
             }
-           // Directory.SetCurrentDirectory(gitfs.gitp.Root);
   
         }
     }

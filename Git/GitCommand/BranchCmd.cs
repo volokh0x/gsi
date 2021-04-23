@@ -20,7 +20,6 @@ namespace gsi
                 string cur_branch=gitfs.head.Branch;
                 foreach(var branch in gitfs.Refs.Where(iref=>iref.Key.StartsWith("heads")).Select(iref=>iref.Key.Substring(6)))
                 {
-                    // heads out of name !!!!
                     string pref = branch==cur_branch?"* ":"  ";
                     Console.WriteLine($"{pref}{branch}");
                 }
@@ -38,7 +37,6 @@ namespace gsi
                 string ref_name = $"heads/{branch_name}";
                 gitfs.Refs[ref_name]=new Ref(gitfs,ref_name,false);
                 gitfs.Refs[ref_name].SetRef(gitfs.head.Hash);
-                //gitfs.head.SetHead(gitfs.Refs[ref_name]);
                 Console.WriteLine($"{branch_name} branch created");
             }
         }

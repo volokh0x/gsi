@@ -4,12 +4,12 @@ using Mono.Options;
 
 namespace gsi
 {
-    class StatusCli: Command 
+    class LsFilesCli: Command 
 	{	
-		public StatusCli () : base ("status", "get status of files")
+		public LsFilesCli () : base ("ls-files", "list staging area")
 		{
 			Options = new OptionSet () {
-				"use as: gsi status",
+				"use as: gsi ls-files",
 				""
 			};
 		}
@@ -21,12 +21,12 @@ namespace gsi
                 {
 					throw new Exception("too many arguments");
                 }
-				GitCommand.SatusCmd();
+				GitCommand.LsFilesCmd();
 				return 0;
 			}
 			catch (Exception e) {
-				Console.Error.WriteLine ($"gsi status: {e.Message}"); 
-				Console.Error.WriteLine ($"gsi status: aborted ...");
+				Console.Error.WriteLine ($"gsi ls-files: {e.Message}"); 
+				Console.Error.WriteLine ($"gsi ls-files: aborted ...");
 				return 1;
 			}
 		}

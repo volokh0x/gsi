@@ -11,7 +11,7 @@ namespace gsi
 		public RmCli () : base ("rm", "remove files from taging area")
 		{
 			Options = new OptionSet () {
-				"usage: gsi rm [files]",
+				"use as: gsi rm <file1> [file2...]",
 				"",
                 { "force|f",
 				"force deletion",
@@ -27,15 +27,14 @@ namespace gsi
 				var extra = Options.Parse (args);
 				if (extra.Count==0)
                 {
-                    Console.WriteLine("gsi rm: nothing to remove");
-                    Console.WriteLine("gsi rm: aborted ...");
-					return 0;
+                    throw new Exception("nothing to remove");
                 }
 				GitCommand.RmCmd(extra,f,r);
 				return 0;
 			}
 			catch (Exception e) {
 				Console.Error.WriteLine ($"gsi rm: {e.Message}"); 
+				Console.Error.WriteLine ($"gsi rm: aborted ...");
 				return 1;
 			}
 		}

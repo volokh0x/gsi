@@ -99,14 +99,10 @@ namespace gsi
         {
             // left blank
         }
-        public List<string> GetParentCommits()
+        public string WriteTreeGraph()
         {
-            var L = new List<string>();
-            if (head.Hash!=null)
-                L.Add(head.Hash);
-            if (merge_head!=null)
-                L.Add(merge_head.Hash);
-            return L;
+            var tree = new Tree(this, new List<IndexEntry>(index.Entries), Environment.CurrentDirectory);
+            return tree.WriteTree();
         }
         public void ReadObjsRecursively(string hash,int num)
         {
@@ -174,7 +170,7 @@ namespace gsi
             PToH[num]=new Dictionary<string, string>();
             RWCR(num,null);
         }
-        public void ApplyDiff(Dictionary<string,FileDiffStatus> diffs)
+        public void ApplyDiff(Dictionary<string,FileDiffStatus> diffs, string ref1, string ref2)
         {
             foreach(var el in diffs)
             {
@@ -194,6 +190,9 @@ namespace gsi
                     hash2=PToH[Num.GIVER][path];
                     blob2=(Blob)Objs[hash2];
                 }
+                string pardir=Path.GetDirectoryName(path);
+                if (pardir!=string.Empty)
+                    Directory.CreateDirectory(pardir);
                 switch(status)
                 {
                     case FileDiffStatus.ADD:
@@ -204,10 +203,13 @@ namespace gsi
                         break;
                     case FileDiffStatus.CONFLICT:
                         File.WriteAllLines(path,
-                            DiffCalc.ComposeConflict(blob1.Content.Split().ToList(),blob2.Content.Split().ToList()));
+                            DiffCalc.ComposeConflict(blob1.Content.Split("\n"),ref1,blob2.Content.Split("\n"),ref2));
                         break;
-                    case FileDiffStatus.MODIFY:
+                    case FileDiffStatus.MODIFYgi:
                         File.WriteAllText(path, blob2.Content);
+                        break;
+                    case FileDiffStatus.MODIFYre:
+                        File.WriteAllText(path, blob1.Content);
                         break;
                     case FileDiffStatus.DELETE:
                         File.Delete(path);
@@ -233,6 +235,15 @@ namespace gsi
                 }
             }
             DED(gitp.Root);
+        }
+        public List<string> GetParentCommits()
+        {
+            var L = new List<string>();
+            if (head.Hash!=null)
+                L.Add(head.Hash);
+            if (merge_head!=null)
+                L.Add(merge_head.Hash);
+            return L;
         }
         public string GetBaseCommitHash(string hash1, string hash2)
         {

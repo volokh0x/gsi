@@ -37,7 +37,6 @@ namespace gsi
         }
         public void ReadConfig()
         {
-            // { "remote": {} } ??
             Content = File.ReadAllText(ConfigPath).Split("[")
                         .Select(s => s.Trim())
                         .Where(s => s != string.Empty)

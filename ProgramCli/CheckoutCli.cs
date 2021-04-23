@@ -20,16 +20,15 @@ namespace gsi
 				var extra = Options.Parse (args);
 				if (extra.Count!=1)
                 {
-                    Console.WriteLine("gsi checkout: must specify one branch to checkout");
-                    Console.WriteLine("gsi checkout: aborted ...");
-					return 0;
+					throw new Exception("must specify one branch to checkout");
                 }
 				GitCommand.CheckoutCmd(extra[0]);
 				return 0;
 			}
 			catch (Exception e) 
 			{
-				Console.Error.WriteLine ($"gsi checkout: {e.ToString()}"); 
+				Console.Error.WriteLine ($"gsi checkout: {e.Message}"); 
+				Console.Error.WriteLine ($"gsi checkout: aborted ...");
 				return 1;
 			}
 		}

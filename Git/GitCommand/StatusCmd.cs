@@ -14,7 +14,6 @@ namespace gsi
                 {
                     Console.WriteLine(msg);
                     foreach (var f in L) Console.WriteLine($"\t{f}");
-                    Console.WriteLine();
                     return true;
                 }
                 return false;
