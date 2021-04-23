@@ -20,9 +20,10 @@ namespace gsi
                 throw new Exception("index file does not exist");
             
             string tree_hash = gitfs.WriteTreeGraph();
+            string head_tree_hash = new Tree(gitfs,gitfs.head.Hash).Hash;
             string head_desc=gitfs.head.IsDetached?"detached HEAD":gitfs.head.Content;
-
-            if (tree_hash==gitfs.head.Hash)
+            
+            if (tree_hash==head_tree_hash )
                 throw new Exception($"On {head_desc} nothing to commit, working directory clean");
 
             var ies=gitfs.index.GetConfilctingEntries();
