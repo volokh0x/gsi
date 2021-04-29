@@ -183,7 +183,7 @@ namespace gsi
         public void AddEntry(string path, string hash)
         {
             Entries.RemoveAll(ie=>ie.path==path);
-            Entries.Add(GenIndexEntry(path,hash,0));
+            Entries.Add(GenIndexEntry(path,hash,Stage.NONCONFL));
             Entries = Entries.OrderBy(ie => ie.path).ToList();
         }
         public void SetFromStorageMerge(Dictionary<string,FileDiffStatus> status)
@@ -249,7 +249,7 @@ namespace gsi
                 D.Add(ie.path,ie.hash);
             return D;
         }
-        public (List<string>, List<string>, List<string>) GetStatus()
+        public (List<string>,List<string>, List<string>, List<string>) GetStatus()
         {
             var dirInfo = new DirectoryInfo(gitfs.gitp.Root);
             var hiddenFolders = dirInfo.GetDirectories("*", SearchOption.AllDirectories)
@@ -257,13 +257,15 @@ namespace gsi
                 .Select(d => d.FullName);
 
             var fs_paths = dirInfo.GetFiles("*.*", SearchOption.AllDirectories)
-                .Where(f => (f.Attributes & FileAttributes.Hidden) == 0 && 
-                    !hiddenFolders.Any(d => f.FullName.StartsWith(d))).Select(x => x.FullName)
-                   .ToList();
+                .Where(f => !hiddenFolders.Any(d => f.FullName.StartsWith(d))).Select(x => x.FullName)
+                .ToList();
             fs_paths=fs_paths.Select(path=>gitfs.gitp.RelToRoot(path)).ToList();
 
-            var path_to_ie = Entries.ToDictionary(ie=>ie.path);
-            List<string> ie_paths = new List<string>(Entries.Select(ie => ie.path).ToList());
+            var lmer = Entries.Where(ie=>ie.stage==Stage.RECEIVER).Select(ie=>ie.path).ToList();
+            var EntriesNonConfl= Entries.Where(ie=>ie.stage==Stage.NONCONFL).ToList();
+
+            var path_to_ie = EntriesNonConfl.ToDictionary(ie=>ie.path);
+            List<string> ie_paths = new List<string>(EntriesNonConfl.Select(ie => ie.path).ToList());
             List<string> lch=new List<string>();
             foreach(var fpath in fs_paths.Intersect(ie_paths))
             {
@@ -275,7 +277,7 @@ namespace gsi
             List<string> lnew = new List<string>(fs_paths.Except(ie_paths));
             List<string> ldel = new List<string>(ie_paths.Except(fs_paths));
             lch.Sort(); lnew.Sort(); ldel.Sort();
-            return (lch, lnew, ldel);
+            return (lmer,lch, lnew, ldel);
         } 
     }
 }

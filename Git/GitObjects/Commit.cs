@@ -23,15 +23,6 @@ namespace gsi
     }
     class Commit : Object
     {
-        public static string AddCommit(GitFS gitfs, string tree_hash, string message)
-        {
-            return new Commit(
-                gitfs, 
-                tree_hash, 
-                message
-            ).WriteCommit();
-        }
-
         public CommitContent Content;
         public string Text {get=>string.Join("\n", Stringify());}
         private byte[] HashedContent;

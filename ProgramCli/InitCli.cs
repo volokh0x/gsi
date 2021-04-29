@@ -15,10 +15,10 @@ namespace gsi
 			Options = new OptionSet () {
 				"use as: gsi init [path] ...",
 				"",
-				{ "bare|b",
+				{ "b|bare",
 				"only for server-side git repo",
 				b => IsBare = b != null },
-				{"help|h|?",
+				{"?|h|help",
 				"get help",
 				v => ShowHelp = v != null },
 			};

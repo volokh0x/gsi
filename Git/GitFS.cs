@@ -37,6 +37,7 @@ namespace gsi
         public FetchHead fetch_head;
         public MergeMsg merge_msg;
         public Index index;
+        public Track track;
         public ConfigSet config_set;
         public Dictionary<string,Object> Objs = new Dictionary<string, Object>();
         public Dictionary<string,string>[] PToH = new Dictionary<string, string>[3];
@@ -66,6 +67,9 @@ namespace gsi
             fpath=gitp.PathFromRoot("index");
             if (File.Exists(fpath))
                 index=new Index(this);
+            fpath=gitp.PathFromRootUser(".track");
+            if (File.Exists(fpath))
+                track=new Track(this);
             config_set=new ConfigSet();
             fpath=gitp.PathFromRoot("config");
             if (File.Exists(fpath))
@@ -103,6 +107,44 @@ namespace gsi
         {
             var tree = new Tree(this, new List<IndexEntry>(index.Entries), Environment.CurrentDirectory);
             return tree.WriteTree();
+        }
+        public string CreateCommit(GitFS gitfs, string tree_hash, string message)
+        {
+            var commit = new Commit(gitfs, tree_hash, message);
+            return commit.WriteCommit();
+        }
+        public (List<string>,List<string>,List<string>,List<string>) TrackWorkingCopy()
+        {
+            (var _lmer, var _lch,var _lnew,var _ldel)=index.GetStatus();
+            var lch=new List<string>();
+            var lnew=new List<string>();
+            var ldel=new List<string>();
+            foreach(var path in _lch)
+            {
+                if (!track.included.Contains(path)) continue;
+                if (path!=".track") 
+                    lch.Add(path);
+            }
+            foreach(var path in _lnew)
+            {
+                if (track.excluded.Contains(path)) continue;
+                if (path!=".track") 
+                {
+                    track.SetEntry(path,true);
+                    lnew.Add(path);
+                }    
+            }
+            foreach(var path in _ldel)
+            {
+                if (track.excluded.Contains(path)) continue;
+                if (path!=".track")
+                {
+                    track.RemoveEntry(path);
+                    ldel.Add(path);
+                }      
+            }
+            track.WriteTrack(); 
+            return (_lmer,lch,lnew,ldel);
         }
         public void ReadObjsRecursively(string hash,int num)
         {
@@ -176,7 +218,7 @@ namespace gsi
             {
                 var path = el.Key;
                 var status = el.Value;
-                
+
                 string hash1=null, hash2=null;
                 Blob blob1=null, blob2=null;
 
@@ -235,6 +277,18 @@ namespace gsi
                 }
             }
             DED(gitp.Root);
+        }
+        public List<string> GetFiles(List<string> paths)
+        {
+            List<string> fpaths=new List<string>();
+            foreach(var path in paths)
+                if (File.Exists(path))
+                    fpaths.Add(path);
+                else if (Directory.Exists(path))
+                    fpaths.AddRange(Directory.EnumerateFiles(path, "*.*", SearchOption.AllDirectories));
+                else 
+                    throw new Exception($"{path} was not found");
+            return fpaths;
         }
         public List<string> GetParentCommits()
         {

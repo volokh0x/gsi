@@ -28,7 +28,8 @@ namespace gsi
             gitfs.Refs["heads/master"]=new Ref(gitfs,"heads/master",false);
             gitfs.head=new Head(gitfs,false);
             gitfs.head.SetHead(gitfs.Refs["heads/master"]);
-            Console.WriteLine($"initialized empty repository: {gitfs.gitp.Root}");
+            Console.WriteLine($"initialized empty repository:");
+            Console.WriteLine($"✔ {gitfs.gitp.Root}");
         }
     }
 }

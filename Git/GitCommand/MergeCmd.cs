@@ -36,10 +36,10 @@ namespace gsi
             if (bbase==receiver)
             {
                 gitfs.ApplyDiff(DiffCalc.Diff(gitfs,receiver,giver),"HEAD",ref_or_hash); 
-
+                
                 gitfs.index.SetFromStorage(Num.GIVER); 
                 gitfs.index.WriteIndex();
-
+                
                 gitfs.head.SetHead(giver);
                 Console.WriteLine($"fast-forward merge [{receiver}] => [{giver}]");
             }
@@ -62,7 +62,7 @@ namespace gsi
                 if (conflicts.Count()!=0)
                     throw new Exception("automatic merge failed. Fix conflicts and commit the result");
 
-                CommitCmd(null);
+                // CommitCmd(null); !!!
 
             }
         }

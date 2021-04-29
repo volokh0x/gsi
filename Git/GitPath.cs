@@ -40,6 +40,10 @@ namespace gsi
         {
             return Path.Combine(Root,(IsBare?"":".git"),path);
         }
+        public string PathFromRootUser(string path)
+        {
+            return Path.Combine(Root,path);
+        }
         public string PathFromDir(string dir, string path)
         {
             return Path.Combine(DirPath[dir],path);

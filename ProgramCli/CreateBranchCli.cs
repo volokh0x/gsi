@@ -4,13 +4,13 @@ using Mono.Options;
 
 namespace gsi
 {
-    class StatusCli: Command 
+    class CreateBranchCli: Command 
 	{	
 		public bool ShowHelp;
-		public StatusCli () : base ("status", "get status of files")
+		public CreateBranchCli () : base ("create-branch", "create a new line of development from current one")
 		{
 			Options = new OptionSet () {
-				"use as: gsi status",
+				"usage: gsi create-branch [name]",
 				"",
 				{"?|h|help",
 				"get help",
@@ -26,16 +26,14 @@ namespace gsi
 					Options.WriteOptionDescriptions(CommandSet.Out);
 					return 0;
 				}
-				if (extra.Count!=0)
-                {
-					throw new Exception("too many arguments");
-                }
-				GitCommand.SatusCmd();
+				if (extra.Count!=1)
+					throw new Exception("must specify one branch name to create");
+				GitCommand.CreateBranchCmd(extra[0]);
 				return 0;
 			}
 			catch (Exception e) {
-				Console.Error.WriteLine ($"gsi status: {e.Message}"); 
-				Console.Error.WriteLine ($"gsi status: aborted ...");
+				Console.Error.WriteLine ($"gsi create-branch: {e.Message}");
+				Console.Error.WriteLine ($"gsi create-branch: aborted ...");
 				return 1;
 			}
 		}

@@ -12,7 +12,8 @@ namespace gsi
         blob,
         tree,
         commit,
-        tag
+        tag,
+        track
     }
     class Object
     {

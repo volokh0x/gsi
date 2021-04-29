@@ -4,13 +4,13 @@ using Mono.Options;
 
 namespace gsi
 {
-    class StatusCli: Command 
+    class LsBranchesCli: Command 
 	{	
 		public bool ShowHelp;
-		public StatusCli () : base ("status", "get status of files")
+		public LsBranchesCli () : base ("ls-branches", "list all branches")
 		{
 			Options = new OptionSet () {
-				"use as: gsi status",
+				"use as: gsi ls-branches",
 				"",
 				{"?|h|help",
 				"get help",
@@ -30,12 +30,12 @@ namespace gsi
                 {
 					throw new Exception("too many arguments");
                 }
-				GitCommand.SatusCmd();
+				GitCommand.LsBranchesCmd();
 				return 0;
 			}
 			catch (Exception e) {
-				Console.Error.WriteLine ($"gsi status: {e.Message}"); 
-				Console.Error.WriteLine ($"gsi status: aborted ...");
+				Console.Error.WriteLine ($"gsi ls-branches: {e.Message}"); 
+				Console.Error.WriteLine ($"gsi ls-branches: aborted ...");
 				return 1;
 			}
 		}

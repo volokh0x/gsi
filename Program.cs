@@ -12,15 +12,16 @@ namespace gsi
         {
             var commands = new CommandSet ("gsi") {
                 "use as: gsi [sub-command] ...",
-                new InitCli(),  
-                new AddCli(),
-                new RmCli(),
+                new InitCli(), 
+                new TrackCli(),
+                new UnTrackCli(), 
                 new CommitCli(),
-                new BranchCli(),
-                new CheckoutCli(),
+                new CreateBranchCli(),
+                new SwitchCli(),
                 new MergeCli(),
                 new CatFileCli(),
                 new LsFilesCli(),
+                new LsBranchesCli(),
                 new StatusCli()
             };
             return commands.Run(args);

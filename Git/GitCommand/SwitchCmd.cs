@@ -7,7 +7,7 @@ namespace gsi
 {
     partial class GitCommand 
     {
-        public static void CheckoutCmd(string ref_or_hash)
+        public static void SwitchCmd(string ref_or_hash)
         {
             // valid non-bare repo
             GitFS gitfs=new GitFS(Environment.CurrentDirectory);

@@ -7,7 +7,7 @@ namespace gsi
 {
     partial class GitCommand 
     {
-        public static void CommitCmd(string message)
+        public static void CommitCmd(string message,List<string> included,List<string> excluded)
         {
             // valid non-bare repo
             GitFS gitfs=new GitFS(Environment.CurrentDirectory);
@@ -15,24 +15,66 @@ namespace gsi
             if (gitfs.config_set.config_pr!=null) gitfs.config_set.config_pr.AssertNotBare();
             Directory.SetCurrentDirectory(gitfs.gitp.Root);
             
-            // read index 
+            included = gitfs.GetFiles(included);
+            excluded = gitfs.GetFiles(excluded);
+
+            // read index and track
             if (gitfs.index==null)
-                throw new Exception("index file does not exist");
+                gitfs.index=new Index(gitfs,false);
+            if (gitfs.track==null)
+                gitfs.track=new Track(gitfs,false);
             
+            (var lmer,var lch, var lnew, var ldel)=gitfs.TrackWorkingCopy();
+            var add = lch.Union(lnew).Append(".track");
+            var del = ldel;
+            
+            // index stuff
+            gitfs.track.SetEntries(included,true);
+            gitfs.track.SetEntries(excluded,false);
+                
+            foreach(var path in add)
+            {  
+                Blob blob=new Blob(gitfs,path,true);
+                string hash = blob.WriteBlob();
+                gitfs.index.AddEntry(path, hash);
+            }
+            foreach(var path in del)
+            {  
+                gitfs.index.DelEntry(path);
+            }
+            gitfs.index.WriteIndex();
+    
             string tree_hash = gitfs.WriteTreeGraph();
-            string head_tree_hash = new Tree(gitfs,gitfs.head.Hash).Hash;
+            string head_tree_hash = gitfs.head.Hash!=null?new Commit(gitfs,gitfs.head.Hash).Content.tree_hash:null;
             string head_desc=gitfs.head.IsDetached?"detached HEAD":gitfs.head.Content;
-            
-            if (tree_hash==head_tree_hash )
-                throw new Exception($"On {head_desc} nothing to commit, working directory clean");
 
-            var ies=gitfs.index.GetConfilctingEntries();
-            if (gitfs.merge_head!=null && ies.Count>0)
-                throw new Exception($"{string.Join("\n",ies.Select(ie=>ie.path))}\ncannot commit because you have unmerged files\n");
+            if (tree_hash==head_tree_hash && gitfs.merge_head==null)
+                throw new Exception($"on {head_desc} nothing to commit, working directory clean");
 
+            // var ies=gitfs.index.GetConfilctingEntries();
+            // if (gitfs.merge_head!=null && ies.Count>0)
+            //     throw new Exception($"{string.Join("\n",ies.Select(ie=>ie.path))}\ncannot commit because you have unmerged files\n");
+            if (lmer.Count!=0)
+            {
+                Console.WriteLine("You are in the middle of a merge");
+                Console.WriteLine($"Conflicting files were:");
+                Console.WriteLine(string.Join("\n",lmer));
+                Repeat:
+                Console.WriteLine("Have you resolved these conflicts? [y/n]");
+                var ans = Console.ReadLine();
+                ans=ans.Trim();
+                if (ans=="n" || ans=="N") return;
+                if (!(ans=="y" || ans=="Y")) goto Repeat;
+                foreach(var path in lmer)
+                {
+                    Blob blob=new Blob(gitfs,path,true);
+                    string hash = blob.WriteBlob();
+                    gitfs.index.AddEntry(path, hash);
+                }    
+            }
             string msg=gitfs.merge_head!=null?gitfs.merge_msg.Content:message;
             
-            string commit_hash = Commit.AddCommit(gitfs,tree_hash,msg);
+            string commit_hash = gitfs.CreateCommit(gitfs,tree_hash,msg);
             gitfs.head.SetHead(commit_hash);
 
             if (gitfs.merge_head!=null)

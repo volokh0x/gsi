@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Mono.Options;
 
 namespace gsi
@@ -8,18 +9,40 @@ namespace gsi
 	{
 		public string Message;		
         public bool ShowHelp;
+		public string currentParameter;
+		public List<string> included=new List<string>();
+		public List<string> excluded=new List<string>();
 		
 		public CommitCli () : base ("commit", "commit changes")
 		{
 			Options = new OptionSet () {
-				"usage: gsi commit [OPTIONS]",
+				"use as: gsi commit [OPTIONS]",
 				"",
-				{"message=|m=",
+				{"m=|message=",
 				"message",
 				m => Message = m},
-				{"help|h|?",
+				{"?|h|help",
 				"get help",
-				v => ShowHelp = v != null},
+				v => ShowHelp = v != null },
+
+				{"i|include", 
+				"files to include" , 
+				v => currentParameter = "i"
+            	},
+				{"e|exclude", 
+				"files to exclude" , 
+				v => currentParameter = "e"
+            	},
+				{ "<>", v => {
+					switch(currentParameter) {
+						case "i":
+							included.Add(v);
+							break;
+						case "e":
+							excluded.Add(v);
+							break;
+					}}
+				}
 			};
 		}
 		public override int Invoke (IEnumerable<string> args)
@@ -32,9 +55,9 @@ namespace gsi
 					Options.WriteOptionDescriptions(CommandSet.Out);
 					return 0;
 				}
-				if (Message==null)
-					throw new Exception("message was not passed");
-				GitCommand.CommitCmd(Message);
+				if (included.Intersect(excluded).Count()!=0)
+					throw new Exception("ambiguity between included and excluded files");
+				GitCommand.CommitCmd(Message,included,excluded);
 				return 0;
 			}
 			catch (Exception e) 

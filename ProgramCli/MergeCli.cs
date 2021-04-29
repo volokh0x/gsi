@@ -6,11 +6,15 @@ namespace gsi
 {
     class MergeCli: Command 
 	{	
+		public bool ShowHelp;
 		public MergeCli () : base ("merge", "merge with some branch")
 		{
 			Options = new OptionSet () {
-				"usage: gsi merge <branch>",
+				"use as: gsi merge <branch>",
 				"",
+				{"?|h|help",
+				"get help",
+				v => ShowHelp = v != null },
 			};
 		}
 		public override int Invoke (IEnumerable<string> args)
@@ -18,6 +22,11 @@ namespace gsi
 			try 
 			{
 				var extra = Options.Parse (args);
+				if (ShowHelp)
+				{
+					Options.WriteOptionDescriptions(CommandSet.Out);
+					return 0;
+				}
 				if (extra.Count!=1)
                 {
 					throw new Exception("must specify one branch to merge in");

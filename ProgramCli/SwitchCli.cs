@@ -4,13 +4,13 @@ using Mono.Options;
 
 namespace gsi
 {
-    class StatusCli: Command 
+    class SwitchCli: Command 
 	{	
 		public bool ShowHelp;
-		public StatusCli () : base ("status", "get status of files")
+		public SwitchCli () : base ("switch", "switch to other branch")
 		{
 			Options = new OptionSet () {
-				"use as: gsi status",
+				"use as: gsi switch [branch]",
 				"",
 				{"?|h|help",
 				"get help",
@@ -19,25 +19,28 @@ namespace gsi
 		}
 		public override int Invoke (IEnumerable<string> args)
 		{
-			try {
-				var extra = Options.Parse(args);
+			try 
+			{
+				var extra = Options.Parse (args);
 				if (ShowHelp)
 				{
 					Options.WriteOptionDescriptions(CommandSet.Out);
 					return 0;
 				}
-				if (extra.Count!=0)
+				if (extra.Count!=1)
                 {
-					throw new Exception("too many arguments");
+					throw new Exception("must specify one branch to checkout");
                 }
-				GitCommand.SatusCmd();
+				GitCommand.SwitchCmd(extra[0]);
 				return 0;
 			}
-			catch (Exception e) {
-				Console.Error.WriteLine ($"gsi status: {e.Message}"); 
-				Console.Error.WriteLine ($"gsi status: aborted ...");
+			catch (Exception e) 
+			{
+				Console.Error.WriteLine ($"gsi switch: {e.Message}"); 
+				Console.Error.WriteLine ($"gsi switch: aborted ...");
 				return 1;
 			}
 		}
+
 	}
 }

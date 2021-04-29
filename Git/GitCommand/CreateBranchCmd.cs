@@ -7,7 +7,7 @@ namespace gsi
 {
     partial class GitCommand 
     {
-        public static void BranchCmd(string branch_name)
+        public static void CreateBranchCmd(string branch_name)
         {
             
             // valid non-bare repo
@@ -27,6 +27,10 @@ namespace gsi
             else if (gitfs.head.Branch==null)
             {
                 throw new Exception($"{gitfs.head.Content} is not valid object");
+            }
+            else if (gitfs.head.Branch!="master")
+            {
+                throw new Exception($"branching from non-master branch is forbidden");
             }
             else if (gitfs.Refs.ContainsKey($"heads/{branch_name}"))
             {

@@ -25,7 +25,7 @@ namespace gsi
             {
                 case ObjectType.blob:
                     var blob = new Blob(gitfs,obj_path,false);
-                    Console.WriteLine(blob.Content);
+                    Console.Write(blob.Content);
                     break;    
                 case ObjectType.tree:
                     var tree = new Tree(gitfs,hash);
@@ -34,7 +34,7 @@ namespace gsi
                     break;        
                 case ObjectType.commit:
                     var commit = new Commit(gitfs,hash);
-                    Console.WriteLine(commit.Text);
+                    Console.Write(commit.Text);
                     break;
             }
         }

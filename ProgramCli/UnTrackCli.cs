@@ -4,13 +4,13 @@ using Mono.Options;
 
 namespace gsi
 {
-    class StatusCli: Command 
+    class UnTrackCli: Command 
 	{	
 		public bool ShowHelp;
-		public StatusCli () : base ("status", "get status of files")
+		public UnTrackCli () : base ("untrack", "mark files as untracked by git")
 		{
 			Options = new OptionSet () {
-				"use as: gsi status",
+				"use as: gsi untrack <path1> [path2...]",
 				"",
 				{"?|h|help",
 				"get help",
@@ -20,22 +20,22 @@ namespace gsi
 		public override int Invoke (IEnumerable<string> args)
 		{
 			try {
-				var extra = Options.Parse(args);
+				var extra = Options.Parse (args);
 				if (ShowHelp)
 				{
 					Options.WriteOptionDescriptions(CommandSet.Out);
 					return 0;
 				}
-				if (extra.Count!=0)
+				if (extra.Count==0)
                 {
-					throw new Exception("too many arguments");
+					throw new Exception("nothing to untrack");
                 }
-				GitCommand.SatusCmd();
+				GitCommand.UnTrackCmd(extra);
 				return 0;
 			}
 			catch (Exception e) {
-				Console.Error.WriteLine ($"gsi status: {e.Message}"); 
-				Console.Error.WriteLine ($"gsi status: aborted ...");
+				Console.Error.WriteLine ($"gsi untrack: {e.Message}"); 
+				Console.Error.WriteLine ($"gsi untrack: aborted ...");
 				return 1;
 			}
 		}
