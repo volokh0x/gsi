@@ -8,7 +8,8 @@ namespace gsi
     {
         public static (bool,string) GetIsDetachedAndHash(GitFS gitfs, string ref_or_hash)
         {
-            if (gitfs.gitp.PathFromHash(ref_or_hash)!=null) return (true,ref_or_hash);
+            string path = gitfs.gitp.PathFromHash(ref_or_hash);
+            if (path!=null) return (true,gitfs.gitp.HashFromPath(path));
             string terminal_ref=TerminalRef(gitfs,ref_or_hash);
             if (terminal_ref=="FETCH_HEAD")
                 return (false,gitfs.fetch_head.FetchHeadBranchToMerge(gitfs.head.Branch));

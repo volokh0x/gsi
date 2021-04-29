@@ -1,13 +1,11 @@
 .
 |--.git
-|--...
-|--.gitignore
 |--.track
 |--file1
 |--dir1
    |--file2
 
-.track
+.track:
 {+|-} file1
 {+|-} dir1/file2
 
