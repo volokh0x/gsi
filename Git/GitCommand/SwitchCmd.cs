@@ -34,7 +34,7 @@ namespace gsi
             var paths = DiffCalc.CommitWouldOverwrite(gitfs); 
             
             if (paths.Count!=0)
-                throw new Exception($"local changes would be lost:\n\t {string.Join("\n\t",paths)}");
+                throw new Exception($"local changes would be lost:\n  {string.Join("\n  ",paths)}");
             
             gitfs.ApplyDiff(DiffCalc.Diff(gitfs,gitfs.head.Hash,hash),"HEAD",ref_or_hash); 
             if (detached) 
@@ -44,9 +44,9 @@ namespace gsi
             gitfs.index.SetFromStorage(Num.GIVER); 
             gitfs.index.WriteIndex();
             if (detached)
-                Console.WriteLine($"Note: switching to {hash}");
+                Console.WriteLine($"switched to {hash}");
             else   
-                Console.WriteLine($"Switched to branch {ref_or_hash}");
+                Console.WriteLine($"switched to branch {ref_or_hash}");
         }
     }
 }

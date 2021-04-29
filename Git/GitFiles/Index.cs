@@ -34,7 +34,12 @@ namespace gsi
         public string mode_oct {get=>StructConverter.IntToOctal6(mode);}
         public override string ToString()
         {
-            return $"{mode_oct} {hash} {stage}\t{path}";
+            string stage_show=null; 
+            if (stage==Stage.NONCONFL) stage_show="⋅ok";
+            else if (stage==Stage.BASE) stage_show="↘ba";
+            else if (stage==Stage.RECEIVER) stage_show="→re";
+            else if (stage==Stage.GIVER) stage_show="↓gi";
+            return $"🗎 {hash} {stage_show}\t{path}";
         }
     }
     static class Stage

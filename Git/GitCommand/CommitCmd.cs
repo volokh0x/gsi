@@ -51,16 +51,13 @@ namespace gsi
             if (tree_hash==head_tree_hash && gitfs.merge_head==null)
                 throw new Exception($"on {head_desc} nothing to commit, working directory clean");
 
-            // var ies=gitfs.index.GetConfilctingEntries();
-            // if (gitfs.merge_head!=null && ies.Count>0)
-            //     throw new Exception($"{string.Join("\n",ies.Select(ie=>ie.path))}\ncannot commit because you have unmerged files\n");
             if (lmer.Count!=0)
             {
-                Console.WriteLine("You are in the middle of a merge");
-                Console.WriteLine($"Conflicting files were:");
-                Console.WriteLine(string.Join("\n",lmer));
+                Console.WriteLine("you are in the middle of a merge");
+                Console.WriteLine($"conflicting files were:");
+                foreach(var path in lmer) Console.WriteLine($"! {path}");
                 Repeat:
-                Console.WriteLine("Have you resolved these conflicts? [y/n]");
+                Console.WriteLine("have you resolved these conflicts? [y/n]");
                 var ans = Console.ReadLine();
                 ans=ans.Trim();
                 if (ans=="n" || ans=="N") return;
@@ -81,7 +78,7 @@ namespace gsi
             {
                 gitfs.merge_head.Delete();
                 gitfs.merge_msg.Delete();
-                Console.WriteLine("Merge made by the three-way strategy");
+                Console.WriteLine("merge made by the three-way strategy");
             }
             else
             {

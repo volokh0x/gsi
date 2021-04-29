@@ -31,7 +31,7 @@ namespace gsi
             {
                 string relpath=gitfs.gitp.RelToRoot(path);
                 gitfs.track.SetEntry(relpath,false);
-                Console.WriteLine($"{relpath} is untracked");
+                Console.WriteLine($"- {relpath} is untracked");
             } 
             gitfs.track.WriteTrack();      
         }

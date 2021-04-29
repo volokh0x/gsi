@@ -14,7 +14,8 @@ namespace gsi
         public string hash;
         public override string ToString()
         {
-            return $"{StructConverter.IntToOctal6(mode)} {name} {hash}";
+            string type = Tree.IsTreeMode(mode)?"🗀":"🗎";
+            return $"{type} {hash} {name}";
         }
     }
     class Tree : Object

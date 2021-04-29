@@ -12,7 +12,7 @@ namespace gsi
             if (gitfs.gitp.ValidRoot()) 
             {
                 Console.WriteLine($"git repository already exists at:");
-                Console.WriteLine($"\t{gitfs.gitp.Root}");
+                Console.WriteLine($"✘ {gitfs.gitp.Root}");
                 return;
             }
 

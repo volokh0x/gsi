@@ -62,7 +62,7 @@ namespace gsi
                 if (conflicts.Count()!=0)
                     throw new Exception("automatic merge failed. Fix conflicts and commit the result");
 
-                // CommitCmd(null); !!!
+                CommitCmd(null,new List<string>(),new List<string>());
 
             }
         }

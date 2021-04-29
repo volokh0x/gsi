@@ -34,14 +34,14 @@ namespace gsi
             }
             else if (gitfs.Refs.ContainsKey($"heads/{branch_name}"))
             {
-               throw new Exception($"{branch_name} already exists"); 
+               throw new Exception($"✘ {branch_name} already exists"); 
             }
             else
             {
                 string ref_name = $"heads/{branch_name}";
                 gitfs.Refs[ref_name]=new Ref(gitfs,ref_name,false);
                 gitfs.Refs[ref_name].SetRef(gitfs.head.Hash);
-                Console.WriteLine($"{branch_name} branch created");
+                Console.WriteLine($"✔ {branch_name} branch created");
             }
         }
     }

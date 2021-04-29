@@ -18,7 +18,7 @@ namespace gsi
             string cur_branch=gitfs.head.Branch;
             foreach(var branch in gitfs.Refs.Where(iref=>iref.Key.StartsWith("heads")).Select(iref=>iref.Key.Substring(6)))
             {
-                string pref = branch==cur_branch?"* ":"  ";
+                string pref = branch==cur_branch?"→ ":"  ";
                 Console.WriteLine($"{pref}{branch}");
             }
         }

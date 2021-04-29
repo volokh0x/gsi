@@ -31,7 +31,7 @@ namespace gsi
                 if (l.Count!=0)
                 {
                     Console.WriteLine(msg);
-                    foreach (var f in l) Console.WriteLine($"\t{f}");
+                    foreach (var f in l) Console.WriteLine($" {f}");
                     return true;
                 }
                 return false;

@@ -17,7 +17,7 @@ namespace gsi
             string hash=gitfs.gitp.HashFromPath(obj_path);
             if (obj_path==null)
             {
-                Console.WriteLine($"no one object found for {hash_prefix}");
+                Console.WriteLine($"no objects found for {hash_prefix}");
                 return;
             }
             (byte[] data, ObjectType objectType)=Object.ReadObject(obj_path);
