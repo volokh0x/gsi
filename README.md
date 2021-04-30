@@ -11,16 +11,16 @@ Full list of commands:
 ``` bash
 gsi init <path>
 
-gsi track <path>
-gsi untrack <path>
-gsi commit -m <msg> -i [path1,...] -e [path2,...]
+gsi track <file|dir>
+gsi untrack <file|dir>
+gsi commit -m <msg> -i [file1|dir1,...] -e [file2|dir2,...]
 
-gsi create-branch <name>
-gsi switch <name/hash>
+gsi branch -c [name1,...] -d [name2,...]
+gsi switch <name|hash>
 gsi merge <name>
 
 gsi status
 gsi ls-files
-gsi ls-branches
 gsi cat-file <hash>
+gsi restore <file> --hash <hash>
 ```
