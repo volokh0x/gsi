@@ -69,7 +69,10 @@ namespace gsi
                     gitfs.index.AddEntry(path, hash);
                 }    
             }
-            string msg=gitfs.merge_head!=null?gitfs.merge_msg.Content:message;
+            string msg;
+            if (gitfs.merge_head!=null) msg=gitfs.merge_msg.Content;
+            else if (message!=null) msg=message;
+            else throw new Exception("message's not specified");
             
             string commit_hash = gitfs.CreateCommit(gitfs,tree_hash,msg);
             gitfs.head.SetHead(commit_hash);

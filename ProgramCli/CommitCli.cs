@@ -47,7 +47,7 @@ namespace gsi
 		}
 		public override int Invoke (IEnumerable<string> args)
 		{
-			try 
+			try
 			{
 				var extra = Options.Parse (args);
 				if (ShowHelp)
