@@ -34,7 +34,6 @@ namespace gsi
         public GitPath gitp;
         public Head head;
         public MergeHead merge_head;
-        public FetchHead fetch_head;
         public MergeMsg merge_msg;
         public Index index;
         public Track track;
@@ -58,9 +57,6 @@ namespace gsi
             fpath=gitp.PathFromRoot("MERGE_HEAD");
             if (File.Exists(fpath))
                 merge_head=new MergeHead(this);
-            fpath=gitp.PathFromRoot("FETCH_HEAD");
-            if (File.Exists(fpath))
-                fetch_head=new FetchHead(this);
             fpath=gitp.PathFromRoot("MERGE_MSG");
             if (File.Exists(fpath))
                 merge_msg=new MergeMsg(this);

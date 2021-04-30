@@ -46,7 +46,7 @@ namespace gsi
     
             string tree_hash = gitfs.WriteTreeGraph();
             string head_tree_hash = gitfs.head.Hash!=null?new Commit(gitfs,gitfs.head.Hash).Content.tree_hash:null;
-            string head_desc=gitfs.head.IsDetached?"detached HEAD":gitfs.head.Content;
+            string head_desc=gitfs.head.Branch;
 
             if (tree_hash==head_tree_hash && gitfs.merge_head==null)
                 throw new Exception($"on {head_desc} nothing to commit, working directory clean");

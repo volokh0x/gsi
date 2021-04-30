@@ -29,7 +29,7 @@ namespace gsi
             {
                 msg.AppendLine("Conflicts:");
                 foreach(var path in conflicts.Keys)
-                    msg.AppendLine(path);
+                    msg.AppendLine($"  {path}");
             }
             Content=msg.ToString();
             File.WriteAllText(MPath, Content);

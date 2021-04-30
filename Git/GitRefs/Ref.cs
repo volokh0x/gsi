@@ -11,10 +11,7 @@ namespace gsi
             string path = gitfs.gitp.PathFromHash(ref_or_hash);
             if (path!=null) return (true,gitfs.gitp.HashFromPath(path));
             string terminal_ref=TerminalRef(gitfs,ref_or_hash);
-            if (terminal_ref=="FETCH_HEAD")
-                return (false,gitfs.fetch_head.FetchHeadBranchToMerge(gitfs.head.Branch));
-            else 
-                return (false,gitfs.Refs[terminal_ref].Hash);
+            return (false,gitfs.Refs[terminal_ref].Hash);
         }
         public static string TerminalRef(GitFS gitfs, string iref)
         {
@@ -33,7 +30,6 @@ namespace gsi
                    Regex.IsMatch(iref,"^refs/heads/[A-Za-z-]+$")
                 || Regex.IsMatch(iref,"^refs/remotes/[A-Za-z-]+/[A-Za-z-]+$")
                 || iref=="HEAD"
-                || iref=="FETCH_HEAD"
                 || iref=="MERGE_HEAD"
             );
         }
@@ -58,6 +54,10 @@ namespace gsi
         {
             Hash=hash;
             File.WriteAllText(RPath, $"{Hash}\n");
+        }
+        public void Delete()
+        {
+            File.Delete(RPath);
         }
     }
 }

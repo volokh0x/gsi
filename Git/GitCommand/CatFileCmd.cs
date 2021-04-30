@@ -34,7 +34,7 @@ namespace gsi
                     break;        
                 case ObjectType.commit:
                     var commit = new Commit(gitfs,hash);
-                    Console.Write(commit.Text);
+                    Console.Write(commit);
                     break;
             }
         }

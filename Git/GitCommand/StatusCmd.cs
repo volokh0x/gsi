@@ -17,21 +17,10 @@ namespace gsi
 
             bool PF(string msg, List<string> L)
             {
-                var l=new List<string>();
-                foreach(var path in L)
-                {
-                    if (gitfs.track.included.Contains(path)) 
-                        l.Add(path);
-                    else if (!gitfs.track.excluded.Contains(path))
-                    {
-                        gitfs.track.SetEntry(path,true);
-                        l.Add(path);
-                    }
-                }
-                if (l.Count!=0)
+                if (L.Count!=0)
                 {
                     Console.WriteLine(msg);
-                    foreach (var f in l) Console.WriteLine($" {f}");
+                    foreach (var f in L) Console.WriteLine($"  {f}");
                     return true;
                 }
                 return false;
@@ -42,15 +31,17 @@ namespace gsi
                 gitfs.index=new Index(gitfs,false);
             if (gitfs.track==null)
                 gitfs.track=new Track(gitfs,false);
-                
-            (var lmer,var lch, var lnew, var ldel)=gitfs.TrackWorkingCopy();
 
+            Console.WriteLine($"[{gitfs.head.Branch} {gitfs.head.Hash}]");
+
+            (var lmer,var lch, var lnew, var ldel)=gitfs.TrackWorkingCopy();
             bool done1 = PF("Conflicting files:",lmer);
             bool done2 = PF("Changed files:",lch);
             bool done3 = PF("New files:",lnew);
             bool done4 = PF("Deleted files:",ldel);
             if (!(done1 || done2 || done3 || done4))
                 Console.WriteLine("working tree is clean");
+                
         }
     }
 }

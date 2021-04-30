@@ -1,8 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Text;
-using Mono.Options;
+﻿using Mono.Options;
 
 namespace gsi
 {
@@ -16,12 +12,12 @@ namespace gsi
                 new TrackCli(),
                 new UnTrackCli(), 
                 new CommitCli(),
-                new CreateBranchCli(),
+                new RestoreCli(),
+                new BranchCli(),
                 new SwitchCli(),
                 new MergeCli(),
                 new CatFileCli(),
                 new LsFilesCli(),
-                new LsBranchesCli(),
                 new StatusCli()
             };
             return commands.Run(args);

@@ -112,5 +112,14 @@ namespace gsi
             Object.WriteObject(HashedContent, ObjectType.commit, OPath); 
             return Hash;
         }
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            foreach(var parent_hash in Content.parent_hashes) sb.AppendLine($"🖼 {parent_hash}");
+            sb.AppendLine($"🗀 {Content.tree_hash}");
+            sb.AppendLine($"☺ {Content.author.name} {Content.author.email}");
+            sb.AppendLine($"✎ {Content.message}");
+            return sb.ToString();
+        }
     }
 }
