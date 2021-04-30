@@ -70,7 +70,7 @@ namespace gsi
                 }    
             }
             string msg;
-            if (gitfs.merge_head!=null) msg=gitfs.merge_msg.Content;
+            if (gitfs.merge_head!=null) msg=gitfs.merge_msg.Content.Split("\n")[0];
             else if (message!=null) msg=message;
             else throw new Exception("message's not specified");
             
@@ -83,10 +83,7 @@ namespace gsi
                 gitfs.merge_msg.Delete();
                 Console.WriteLine("merge made by the three-way strategy");
             }
-            else
-            {
-                Console.WriteLine($"[{head_desc} {commit_hash}] {msg}");
-            }
+            Console.WriteLine($"[{head_desc} {commit_hash}] {msg}");
         }
     }
 }
