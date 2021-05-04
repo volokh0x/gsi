@@ -18,9 +18,9 @@ namespace gsi
             if (create.Count+delete.Count==0)
             {
                 string cur_branch=gitfs.head.Branch;
-                foreach(var branch in gitfs.Refs.Where(iref=>iref.Key.StartsWith("heads")).Select(iref=>iref.Key.Substring(6)))
+                foreach(var branch in gitfs.Refs.Where(iref=>iref.Key.StartsWith("heads")).Select(iref=>iref.Key.Substring(6)).OrderBy(path=>path))
                 {
-                    string pref = branch==cur_branch?"→":" ";
+                    string pref = branch==cur_branch?"*":"🖼";
                     Console.WriteLine($"{pref} {gitfs.Refs[$"heads/{branch}"].Hash} {branch}");
                 }
                 return;

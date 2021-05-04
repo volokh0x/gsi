@@ -32,13 +32,16 @@ namespace gsi
             if (gitfs.track==null)
                 gitfs.track=new Track(gitfs,false);
 
-            Console.WriteLine($"[{gitfs.head.Branch} {gitfs.head.Hash}]");
+            //var msg = new Commit(gitfs,gitfs.head.Hash).Content.message;
+            // Console.WriteLine($"[{gitfs.head.Branch} {gitfs.head.Hash}] {msg}");
+
+            Console.WriteLine($"🖼 {gitfs.head.Hash} {gitfs.head.Branch}");
 
             (var lmer,var lch, var lnew, var ldel)=gitfs.TrackWorkingCopy();
-            bool done1 = PF("Conflicting files:",lmer);
-            bool done2 = PF("Changed files:",lch);
-            bool done3 = PF("New files:",lnew);
-            bool done4 = PF("Deleted files:",ldel);
+            bool done1 = PF("conflicting files:",lmer);
+            bool done2 = PF("changed files:",lch);
+            bool done3 = PF("new files:",lnew);
+            bool done4 = PF("deleted files:",ldel);
             if (!(done1 || done2 || done3 || done4))
                 Console.WriteLine("working tree is clean");
                 

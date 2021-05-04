@@ -84,8 +84,8 @@ namespace gsi
         }
         public static List<string> CommitWouldOverwrite(GitFS gitfs)
         {
-            string head_hash = gitfs.head.Hash;
-            return DiffCalc.Diff(gitfs,head_hash).Where(el=>el.Value!=FileDiffStatus.SAME).Select(el=>el.Key).ToList();
+            (var lmer,var lch,var lnew,var ldel)=gitfs.TrackWorkingCopy();
+            return lmer.Union(lch).Union(lnew).Union(ldel).ToList();
         }
         public static List<string> AddedOrModified(GitFS gitfs)
         {
