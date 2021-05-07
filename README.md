@@ -5,7 +5,7 @@ Gsi simplifies git usage, being at the same time compatible with it.
 Features:
   * direct addition or removal from staging area is replaced with a user file .track (explore [docs](https://github.com/volokh0x/gsi/blob/master/docs/track.txt))
   * branching from non-master branch is forbidden
-  * when switching by commit hash, current branch is also redirected, losing some history 
+  * when switching by a commit hash, the current branch is also redirected, losing some history 
 
 Full list of commands:
 ``` bash

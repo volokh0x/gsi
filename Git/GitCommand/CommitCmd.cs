@@ -23,15 +23,17 @@ namespace gsi
                 gitfs.index=new Index(gitfs,false);
             if (gitfs.track==null)
                 gitfs.track=new Track(gitfs,false);
-            
+                
             (var lmer,var lch, var lnew, var ldel)=gitfs.TrackWorkingCopy();
+            gitfs.track.WriteTrack();
+
+            gitfs.track.SetEntries(included,true);
+            gitfs.track.SetEntries(excluded,false);
+            (lmer, lch, lnew, ldel)=gitfs.TrackWorkingCopy();
             var add = lch.Union(lnew).Append(".track");
             var del = ldel;
             
-            // index stuff
-            gitfs.track.SetEntries(included,true);
-            gitfs.track.SetEntries(excluded,false);
-                
+            // .track file inside add, path does not exists
             foreach(var path in add)
             {  
                 Blob blob=new Blob(gitfs,path,true);

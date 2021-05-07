@@ -31,13 +31,11 @@ namespace gsi
                 gitfs.index=new Index(gitfs,false);
             if (gitfs.track==null)
                 gitfs.track=new Track(gitfs,false);
-
-            //var msg = new Commit(gitfs,gitfs.head.Hash).Content.message;
-            // Console.WriteLine($"[{gitfs.head.Branch} {gitfs.head.Hash}] {msg}");
-
             Console.WriteLine($"🖼 {gitfs.head.Hash} {gitfs.head.Branch}");
 
             (var lmer,var lch, var lnew, var ldel)=gitfs.TrackWorkingCopy();
+            gitfs.track.WriteTrack(); 
+
             bool done1 = PF("conflicting files:",lmer);
             bool done2 = PF("changed files:",lch);
             bool done3 = PF("new files:",lnew);

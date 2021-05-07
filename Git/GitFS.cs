@@ -139,7 +139,6 @@ namespace gsi
                     ldel.Add(path);
                 }      
             }
-            track.WriteTrack(); 
             return (_lmer,lch,lnew,ldel);
         }
         public void ReadObjsRecursively(string hash,int num)
