@@ -24,3 +24,4 @@ gsi ls-files
 gsi cat-file <hash>
 gsi restore <file> --hash <hash>
 ```
+![gsi commit](https://github.com/volokh0x/gsi/blob/master/images/gsi_commit.png)
