@@ -1,5 +1,5 @@
-make: 
-	dotnet publish --configuration Release
+make:
+	dotnet publish --configuration Debug
 
 run:
 	dotnet run

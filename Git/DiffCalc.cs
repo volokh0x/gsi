@@ -23,7 +23,6 @@ namespace gsi
     {
         public static Dictionary<string, FileDiffStatus> Diff(GitFS gitfs, string hash1=null, string hash2=null, string hash3=null)
         {
-            
             Dictionary<string,string> a, b, c;
             if (hash1!=null)
                 gitfs.ReadObjsRecursively(hash1,Num.RECEIVER);
@@ -32,7 +31,7 @@ namespace gsi
             a=gitfs.PToH[Num.RECEIVER];
             if (hash2!=null)
                 gitfs.ReadObjsRecursively(hash2,Num.GIVER);
-            else                
+            else
                 gitfs.ReadWorkingCopyRecursively(Num.GIVER);
             b=gitfs.PToH[Num.GIVER];
             if (hash3!=null)
@@ -55,7 +54,7 @@ namespace gsi
                     if (giver!=bbase) return FileDiffStatus.MODIFYgi;
                     if (receiver!=bbase) return FileDiffStatus.MODIFYre;
                 }
-                else if (receiver==giver) 
+                else if (receiver==giver)
                     return FileDiffStatus.SAME;
                 else if (
                        (!bb && re && !gi)
@@ -96,7 +95,7 @@ namespace gsi
 
             if (gitfs.head.Hash!=null)
                 gitfs.ReadObjsRecursively(gitfs.head.Hash,Num.GIVER);
-            else 
+            else
                 gitfs.PToH[Num.GIVER]=new Dictionary<string, string>();
             b=gitfs.PToH[Num.GIVER];
 
@@ -142,7 +141,7 @@ namespace gsi
             foreach((int l, int r) in L)
             {
                 int st1=prevl+1, st2=prevr+1;
-                int lenl=l-prevl-1, lenr=r-prevr-1; 
+                int lenl=l-prevl-1, lenr=r-prevr-1;
                 Mark(st1,lenl,st2,lenr);
                 if (l<text1.Length) text.Add(text1[l]);
                 prevl=l; prevr=r;
