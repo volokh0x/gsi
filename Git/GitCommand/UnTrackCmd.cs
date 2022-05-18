@@ -5,12 +5,12 @@ using System.Linq;
 
 namespace gsi
 {
-    partial class GitCommand 
+    partial class GitCommand
     {
         public static void UnTrackCmd(List<string> paths)
         {
             paths=paths.Select(path => Path.GetFullPath(path)).ToList();
-            
+
             // valid non-bare repo
             GitFS gitfs=new GitFS(Environment.CurrentDirectory);
             gitfs.gitp.AssertValidRoot();
@@ -24,16 +24,16 @@ namespace gsi
                 Console.WriteLine("nothing specified, nothing was marked as untracked");
                 return;
             }
-            
+
             if (gitfs.track==null)
                 gitfs.track=new Track(gitfs,false);
             foreach(var path in fpaths)
             {
                 string relpath=gitfs.gitp.RelToRoot(path);
-                gitfs.track.SetEntry(relpath,false);
+                gitfs.track.SetEntry(relpath,Track.Status.EXLUDED);
                 Console.WriteLine($"- {relpath} is untracked");
-            } 
-            gitfs.track.WriteTrack();      
+            }
+            gitfs.track.WriteTrack();
         }
     }
 }

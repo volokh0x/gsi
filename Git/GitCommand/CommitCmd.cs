@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace gsi
 {
-    partial class GitCommand 
+    partial class GitCommand
     {
         public static void CommitCmd(string message,List<string> included,List<string> excluded)
         {
@@ -14,7 +14,7 @@ namespace gsi
             gitfs.gitp.AssertValidRoot();
             if (gitfs.config_set.config_pr!=null) gitfs.config_set.config_pr.AssertNotBare();
             Directory.SetCurrentDirectory(gitfs.gitp.Root);
-            
+
             included = gitfs.GetFiles(included);
             excluded = gitfs.GetFiles(excluded);
 
@@ -23,29 +23,29 @@ namespace gsi
                 gitfs.index=new Index(gitfs,false);
             if (gitfs.track==null)
                 gitfs.track=new Track(gitfs,false);
-                
+
             (var lmer,var lch, var lnew, var ldel)=gitfs.TrackWorkingCopy();
             gitfs.track.WriteTrack();
 
-            gitfs.track.SetEntries(included,true);
-            gitfs.track.SetEntries(excluded,false);
+            gitfs.track.SetEntries(included,Track.Status.INCLUDED);
+            gitfs.track.SetEntries(excluded,Track.Status.EXLUDED);
             (lmer, lch, lnew, ldel)=gitfs.TrackWorkingCopy();
             var add = lch.Union(lnew).Append(".track");
             var del = ldel;
-            
+
             // .track file inside add, path does not exists
             foreach(var path in add)
-            {  
+            {
                 Blob blob=new Blob(gitfs,path,true);
                 string hash = blob.WriteBlob();
                 gitfs.index.AddEntry(path, hash);
             }
             foreach(var path in del)
-            {  
+            {
                 gitfs.index.DelEntry(path);
             }
             gitfs.index.WriteIndex();
-    
+
             string tree_hash = gitfs.WriteTreeGraph();
             string head_tree_hash = gitfs.head.Hash!=null?new Commit(gitfs,gitfs.head.Hash).Content.tree_hash:null;
             string head_desc=gitfs.head.Branch;
@@ -69,13 +69,13 @@ namespace gsi
                     Blob blob=new Blob(gitfs,path,true);
                     string hash = blob.WriteBlob();
                     gitfs.index.AddEntry(path, hash);
-                }    
+                }
             }
             string msg;
             if (gitfs.merge_head!=null) msg=gitfs.merge_msg.Content.Split("\n")[0];
             else if (message!=null) msg=message;
             else throw new Exception("message's not specified");
-            
+
             string commit_hash = gitfs.CreateCommit(gitfs,tree_hash,msg);
             gitfs.head.SetHead(commit_hash);
 

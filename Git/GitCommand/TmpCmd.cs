@@ -7,7 +7,7 @@ namespace gsi
 {
     partial class GitCommand
     {
-        public static void TrackCmd(List<string> paths)
+        public static void TmpCmd(List<string> paths)
         {
             paths=paths.Select(path => Path.GetFullPath(path)).ToList();
 
@@ -21,7 +21,7 @@ namespace gsi
             var fpaths = gitfs.GetFiles(paths);
             if (fpaths.Count==0)
             {
-                Console.WriteLine("nothing specified, nothing was marked as tracked");
+                Console.WriteLine("nothing specified, nothing was marked as temporary");
                 return;
             }
 
@@ -30,8 +30,8 @@ namespace gsi
             foreach(var path in fpaths)
             {
                 string relpath=gitfs.gitp.RelToRoot(path);
-                gitfs.track.SetEntry(relpath,Track.Status.INCLUDED);
-                Console.WriteLine($"+ {relpath} is tracked");
+                gitfs.track.SetEntry(relpath,Track.Status.TMP);
+                Console.WriteLine($"# {relpath} is temporary");
             }
             gitfs.track.WriteTrack();
         }

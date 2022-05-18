@@ -4,13 +4,14 @@ namespace gsi
 {
     static class Program
     {
-        static int Main (string[] args)
+        static int Main(string[] args)
         {
-            var commands = new CommandSet ("gsi") {
+            var commands = new CommandSet("gsi") {
                 "use as: gsi [sub-command] ...",
-                new InitCli(), 
+                new InitCli(),
                 new TrackCli(),
-                new UnTrackCli(), 
+                new TmpCli(),
+                new UnTrackCli(),
                 new CommitCli(),
                 new RestoreCli(),
                 new BranchCli(),

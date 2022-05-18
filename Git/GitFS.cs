@@ -20,7 +20,7 @@ namespace gsi
 
                 var parent_info = Directory.GetParent(path_info.FullName);
                 if (parent_info==null) return (null,false);
-                
+
                 if (File.Exists(maybe_config))
                 {
                     Config config = new Config(maybe_config);
@@ -30,7 +30,7 @@ namespace gsi
                 path_info=parent_info;
             }
         }
-        
+
         public GitPath gitp;
         public Head head;
         public MergeHead merge_head;
@@ -76,7 +76,7 @@ namespace gsi
             fpath="/etc/gitconfig";
             if (File.Exists(fpath))
                 config_set.config_glbl=new Config(fpath);
-            
+
             // init all exisitng refs in repo
             foreach (var reff in Directory.GetFiles(gitp.DirPath["tags"]))
             {
@@ -92,7 +92,7 @@ namespace gsi
                 Refs[ref_name ]=new Ref(this, ref_name);
                 if (fname=="master") master_found=true;
             }
-            if (!master_found) 
+            if (!master_found)
                 Refs["heads/master"]=new Ref(this,"heads/master",false);
         }
         public GitFS()
@@ -118,17 +118,17 @@ namespace gsi
             foreach(var path in _lch)
             {
                 if (!track.included.Contains(path)) continue;
-                if (path!=".track") 
+                if (path!=".track")
                     lch.Add(path);
             }
             foreach(var path in _lnew)
             {
                 if (track.excluded.Contains(path)) continue;
-                if (path!=".track") 
+                if (path!=".track")
                 {
-                    track.SetEntry(path,true);
+                    track.SetEntry(path,Track.Status.INCLUDED);
                     lnew.Add(path);
-                }    
+                }
             }
             foreach(var path in _ldel)
             {
@@ -137,7 +137,7 @@ namespace gsi
                 {
                     track.RemoveEntry(path);
                     ldel.Add(path);
-                }      
+                }
             }
             return (_lmer,lch,lnew,ldel);
         }
@@ -163,9 +163,9 @@ namespace gsi
                 if (objt==ObjectType.blob)
                 {
                     var blob = new Blob(this,path_from_hash,false);
-                    Objs[hash]=blob; 
-                    PToH[num][path]=hash; 
-                }  
+                    Objs[hash]=blob;
+                    PToH[num][path]=hash;
+                }
                 else if (objt==ObjectType.tree)
                 {
                     var tree = new Tree(this,hash);
@@ -175,7 +175,7 @@ namespace gsi
                         paths.Add(te.name);
                         ROR(te.hash,num,paths);
                         paths.RemoveAt(paths.Count-1);
-                    }     
+                    }
                 }
                 else if (objt==ObjectType.commit)
                 {
@@ -261,10 +261,10 @@ namespace gsi
             {
                 foreach (var directory in Directory.GetDirectories(path))
                 {
-                    if (new DirectoryInfo(directory).Name==".git") 
+                    if (new DirectoryInfo(directory).Name==".git")
                         continue;
                     DED(directory);
-                    if (Directory.GetFiles(directory).Length == 0 && 
+                    if (Directory.GetFiles(directory).Length == 0 &&
                         Directory.GetDirectories(directory).Length == 0)
                     {
                         Directory.Delete(directory, false);
@@ -281,7 +281,7 @@ namespace gsi
                     fpaths.Add(path);
                 else if (Directory.Exists(path))
                     fpaths.AddRange(Directory.EnumerateFiles(path, "*.*", SearchOption.AllDirectories));
-                else 
+                else
                     throw new Exception($"{path} was not found");
             return fpaths;
         }
@@ -313,7 +313,7 @@ namespace gsi
                 return depth;
             }
 
-            int h1 = RCR(hash1); 
+            int h1 = RCR(hash1);
             int h2 = RCR(hash2);
 
             while (h1!=h2)
@@ -326,7 +326,7 @@ namespace gsi
                 else
                 {
                     hash2=((Commit)Objs[hash2]).Content.parent_hashes[0];
-                    h2-=1; 
+                    h2-=1;
                 }
             }
 

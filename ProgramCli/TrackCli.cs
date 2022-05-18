@@ -4,8 +4,8 @@ using Mono.Options;
 
 namespace gsi
 {
-    class TrackCli: Command 
-	{	
+    class TrackCli: Command
+	{
 		public bool ShowHelp;
 		public TrackCli () : base ("track", "mark files as tracked by git")
 		{
@@ -34,7 +34,7 @@ namespace gsi
 				return 0;
 			}
 			catch (Exception e) {
-				Console.Error.WriteLine ($"gsi track: {e.Message}"); 
+				Console.Error.WriteLine ($"gsi track: {e.Message}");
 				Console.Error.WriteLine ($"gsi track: aborted ...");
 				return 1;
 			}
