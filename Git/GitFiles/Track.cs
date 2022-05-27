@@ -18,29 +18,39 @@ namespace gsi
             TMP
         }
         private GitFS gitfs;
-        public string TrackPath {get => gitfs.gitp.PathFromRootUser(".track");}
-        public Dictionary<string,Status> Entries= new Dictionary<string, Status>();
-        public List<string> included {get=>_Included();}
-        public List<string> excluded {get=>_Excluded();}
+        public string TrackPath { get => gitfs.gitp.PathFromRootUser(".track"); }
+        public Dictionary<string, Status> Entries = new Dictionary<string, Status>();
+        public List<string> included { get => _Included(); }
+        public List<string> excluded { get => _Excluded(); }
         public List<string> tmp { get => _Tmp(); }
 
-        public Track(GitFS gitfs, bool read_track=true)
+        public Track(GitFS gitfs, bool read_track = true)
         {
-            this.gitfs=gitfs;
+            this.gitfs = gitfs;
             if (read_track) ReadTrack();
+        }
+        public Track(GitFS gitfs, string hash)
+        {
+            this.gitfs = gitfs;
+            var blob = new Blob(gitfs, gitfs.gitp.PathFromHash(hash), false);
+            ReadTrack(blob.Content.Split(Environment.NewLine));
         }
         public void ReadTrack()
         {
-            foreach(var line in File.ReadAllLines(TrackPath))
+            ReadTrack(File.ReadAllLines(TrackPath));
+        }
+        public void ReadTrack(string[] lines)
+        {
+            foreach (var line in lines)
             {
                 var mas = line.Split();
-                if (mas[0]==string.Empty) continue;
-                if (mas.Length!=2) throw new Exception(".track file is invalide");
-                if (mas[0]=="+")
+                if (mas[0] == string.Empty) continue;
+                if (mas.Length != 2) throw new Exception(".track file is invalide");
+                if (mas[0] == "+")
                     Entries.Add(mas[1], Status.INCLUDED);
-                else if (mas[0]=="-")
+                else if (mas[0] == "-")
                     Entries.Add(mas[1], Status.EXLUDED);
-                else if (mas[0]=="#")
+                else if (mas[0] == "#")
                     Entries.Add(mas[1], Status.TMP);
                 else
                     throw new Exception(".track file is invalide");
@@ -52,12 +62,12 @@ namespace gsi
 
             foreach (var path in Entries.Keys.OrderBy(path => path).ToList())
             {
-                string symb="";
-                if (Entries[path]==Status.INCLUDED)
+                string symb = "";
+                if (Entries[path] == Status.INCLUDED)
                     symb = "+";
-                if (Entries[path]==Status.EXLUDED)
+                if (Entries[path] == Status.EXLUDED)
                     symb = "-";
-                if (Entries[path]==Status.TMP)
+                if (Entries[path] == Status.TMP)
                     symb = "#";
                 L.Add($"{symb} {path}");
             }
@@ -65,20 +75,35 @@ namespace gsi
         }
         public void WriteTrack()
         {
-            File.WriteAllLines(TrackPath,Stringify());
+            File.WriteAllLines(TrackPath, Stringify());
         }
-        public void SetEntry(string path, Status st=Status.EXLUDED)
+        public string WriteLikeBlob()
         {
-            Entries[path]=st;
+            string str_content = string.Join(System.Environment.NewLine, Stringify());
+            if (str_content != string.Empty)
+                str_content += System.Environment.NewLine;
+            var blob = new Blob(gitfs, str_content);
+            return blob.WriteBlob();
         }
-        public void SetEntries(List<string> paths, Status st=Status.EXLUDED)
+        public void SetEntry(string path, Status st = Status.EXLUDED)
         {
-            foreach(var path in paths)
-                SetEntry(path,st);
+            Entries[path] = st;
+        }
+        public void SetEntries(List<string> paths, Status st = Status.EXLUDED)
+        {
+            foreach (var path in paths)
+                SetEntry(path, st);
         }
         public void RemoveEntry(string path)
         {
             Entries.Remove(path);
+        }
+        public void RemoveEntries(List<string> paths)
+        {
+            if (paths == null)
+                paths = tmp;
+            foreach (var path in paths)
+                RemoveEntry(path);
         }
         public bool IsFilePresent(string path)
         {
@@ -86,22 +111,23 @@ namespace gsi
         }
         private List<string> _Included()
         {
-            List<string> L=new List<string>();
-            foreach(var el in Entries)
-                if (el.Value==Status.INCLUDED) L.Add(el.Key);
+            List<string> L = new List<string>();
+            foreach (var el in Entries)
+                if (el.Value == Status.INCLUDED) L.Add(el.Key);
             return L;
         }
         private List<string> _Excluded()
         {
-            List<string> L=new List<string>();
-            foreach(var el in Entries)
-                if (el.Value==Status.EXLUDED) L.Add(el.Key);
+            List<string> L = new List<string>();
+            foreach (var el in Entries)
+                if (el.Value == Status.EXLUDED) L.Add(el.Key);
             return L;
         }
-        private List<string> _Tmp() {
-            List<string> L=new List<string>();
-            foreach(var el in Entries)
-                if (el.Value==Status.TMP) L.Add(el.Key);
+        private List<string> _Tmp()
+        {
+            List<string> L = new List<string>();
+            foreach (var el in Entries)
+                if (el.Value == Status.TMP) L.Add(el.Key);
             return L;
         }
     }

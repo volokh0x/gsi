@@ -8,37 +8,42 @@ namespace gsi
     {
         public string Content;
         private byte[] HashedContent;
-        
+
         public Blob(GitFS gitfs, string path, bool user_file)
         {
-            this.gitfs=gitfs;
+            this.gitfs = gitfs;
             if (!user_file)
             {
                 Hash = gitfs.gitp.HashFromPath(path);
                 ReadBlob();
-            } 
-            else 
+            }
+            else
                 Content = File.ReadAllText(path);
+        }
+        public Blob(GitFS gitfs, string content)
+        {
+            this.gitfs = gitfs;
+            Content = content;
         }
         public void ReadBlob()
         {
             (byte[] data, ObjectType objt) = Object.ReadObject(OPath);
-            if (objt!=ObjectType.blob) throw new Exception("not a blob");
-            Content=Encoding.UTF8.GetString(data);
+            if (objt != ObjectType.blob) throw new Exception("not a blob");
+            Content = Encoding.UTF8.GetString(data);
         }
         public string HashBlob()
         {
             byte[] data = Encoding.UTF8.GetBytes(Content);
-            (byte[] hashed_data, string hash) = Object.HashObject(data,ObjectType.blob);
-            HashedContent=hashed_data;
-            Hash=hash;
+            (byte[] hashed_data, string hash) = Object.HashObject(data, ObjectType.blob);
+            HashedContent = hashed_data;
+            Hash = hash;
             return hash;
         }
-        public string WriteBlob(bool to_hash=true)
+        public string WriteBlob(bool to_hash = true)
         {
-            if (to_hash || HashedContent==null)
+            if (to_hash || HashedContent == null)
                 HashBlob();
-            Object.WriteObject(HashedContent, ObjectType.blob, OPath); 
+            Object.WriteObject(HashedContent, ObjectType.blob, OPath);
             return Hash;
         }
     }

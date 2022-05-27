@@ -14,6 +14,7 @@ namespace gsi
                 new UnTrackCli(),
                 new CommitCli(),
                 new RestoreCli(),
+                new CleanHistoryCli(),
                 new BranchCli(),
                 new SwitchCli(),
                 new MergeCli(),
