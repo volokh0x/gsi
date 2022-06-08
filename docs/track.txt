@@ -6,6 +6,6 @@
    |--file2
 
 .track:
-{+|-} file1
-{+|-} dir1/file2
+{+|-|#} file1
+{+|-|#} dir1/file2
 

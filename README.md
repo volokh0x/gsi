@@ -13,7 +13,9 @@ gsi init <path>
 
 gsi track <file|dir>
 gsi untrack <file|dir>
+gsi tmp <file|dir>
 gsi commit -m <msg> -i [file1|dir1,...] -e [file2|dir2,...]
+gsi clean-history <file|dir> | --all
 
 gsi branch -c [name1,...] -d [name2,...]
 gsi switch <name|hash>

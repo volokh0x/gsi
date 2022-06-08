@@ -14,7 +14,7 @@ gsi tmp dir1/t
 gsi commit -m v01
 gsi branch -c b2
 
-echo tmaster > dir1/t
+echo cmaster > dir1/c
 gsi commit -m v02
 
 gsi switch b2
@@ -24,9 +24,6 @@ gsi commit -m v03
 gsi switch master
 gsi merge b2
 
-
-
-
-
+gsi clean-history dir1/t
 
 
