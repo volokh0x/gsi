@@ -42,7 +42,7 @@ namespace gsi
             }
             catch (Exception e)
             {
-                Console.Error.WriteLine($"gsi clean-history: {e}");  // e.Message
+                Console.Error.WriteLine($"gsi clean-history: {e.Message}");  
                 Console.Error.WriteLine($"gsi clean-history: aborted ...");
                 return 1;
             }
