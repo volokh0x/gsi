@@ -3,9 +3,10 @@ Git made SImple
 
 Gsi simplifies git usage, being at the same time compatible with it.
 Features:
-  * direct addition or removal from staging area is replaced with a user file .track (explore [docs](https://github.com/volokh0x/gsi/blob/master/docs/track.txt))
+  * direct addition or removal from staging area is replaced with a user file .track
   * branching from non-master branch is forbidden
   * when switching by a commit hash, the current branch is also redirected, losing some history
+  * efficient and convenient deletion of temporary files saved in a user file .tmp
 
 Full list of commands:
 ``` bash
