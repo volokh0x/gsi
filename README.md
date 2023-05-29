@@ -26,4 +26,5 @@ gsi status
 gsi ls-files
 gsi cat-file <hash>
 gsi restore <file> --hash <hash>
+gsi json-diff <file1|hash1> <file2|hash2> [-Hiea]
 ```

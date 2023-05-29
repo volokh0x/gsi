@@ -20,6 +20,7 @@ namespace gsi
                 new MergeCli(),
                 new CatFileCli(),
                 new LsFilesCli(),
+                new JsonDiffCli(),
                 new StatusCli()
             };
             return commands.Run(args);

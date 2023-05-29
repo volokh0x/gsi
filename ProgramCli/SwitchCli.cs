@@ -36,7 +36,7 @@ namespace gsi
             }
             catch (Exception e)
             {
-                Console.Error.WriteLine($"gsi switch: {e.Message}"); 
+                Console.Error.WriteLine($"gsi switch: {e.Message}");
                 Console.Error.WriteLine($"gsi switch: aborted ...");
                 return 1;
             }
