@@ -7,6 +7,7 @@ Features:
   * branching from non-master branch is forbidden
   * when switching by a commit hash, the current branch is also redirected, losing some history
   * efficient and convenient deletion of temporary files saved in a user file .tmp
+  * additional structural diff for JSON files
 
 Full list of commands:
 ``` bash
