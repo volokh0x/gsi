@@ -8,7 +8,6 @@ namespace gsi
     class RestoreCli: Command 
 	{
 		public string Hash_prefix;
-        public string file;		
         public bool ShowHelp;
 		
 		public RestoreCli () : base ("restore", "restore file by it's hash")
